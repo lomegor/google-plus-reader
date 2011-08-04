@@ -1,0 +1,6 @@
+This an attempt to create two things:
+
+-A "Share on Google+" button on Google Reader items.
+-A "Goole Reader" section in Google+, for reading news right in Google+ homepage.
+
+As a Google+ API doesn't exist, most of the functions in these files modified DOM objects, and use the Share bar on top of all Google pages. The code for doing this last thing can be reused in other projects to maximize the use of Google+, but as it needs the Google Black Bar, it can only be used for extensions and such meant to improve Google Products.

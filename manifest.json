@@ -1,0 +1,19 @@
+{
+  "name": "Google+Reader",
+  "version": "0.1",
+  "description": "Google+ and Google Reader Integration",
+  "permissions": ["tabs","http://www.google.com/reader/*","https://plus.google.com","http://plus.google.com"],
+  "icons": {"128":"icon.png"},
+  "background_page" : "background.html",
+  "content_scripts": [{
+      "matches": ["*://www.google.com/reader/*"],
+      "js": ["scripts/jquery.js","scripts/reader.js"],
+      "all_frames":true
+    },{
+      "matches": ["*://plus.google.com/*"],
+      "css": ["styles/plus.css"],
+      "js": ["scripts/jquery.js","scripts/plus.js"],
+      "all_frames":true
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+.googleplusreader {
+  margin-top:10px;
+}
+.entry {
+  background-color: white;
+  border-bottom: 1px solid transparent;
+  border-left: 1px solid transparent;
+  border-top: 1px solid #EEE;
+  clear: both;
+  font-size: 13px;
+  line-height: 1.4;
+  outline: none;
+  padding: 16px 21px;
+  position: relative;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  word-wrap: break-word;
+}
+.entry .title {
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight:bold;
+  margin-bottom: 20px;
+  display:inline-block;
+}
+.entry .share {
+  margin-bottom:20px;
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+  float:right;
+}

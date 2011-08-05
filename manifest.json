@@ -1,9 +1,9 @@
 {
   "name": "Google+Reader",
-  "version": "0.5",
+  "version": "0.8",
   "description": "Google+ and Google Reader Integration",
-  "permissions": ["tabs","http://www.google.com/reader/*","https://plus.google.com","http://plus.google.com"],
   "icons": {"128":"icon.png"},
+  "permissions": ["tabs","http://www.google.com/reader/*","https://plus.google.com","http://plus.google.com"],
   "background_page" : "background.html",
   "options_page" : "options.html",
   "content_scripts": [{

@@ -53,6 +53,7 @@ if (window==top) {
     var referenceMarkUnread = "markunread";
     var referenceMarkedUnread = "markedunread";
     var referenceUnread = "unread";
+    var referenceOpen = "open";
     var referenceShareButton = $("span[role|='button'].d-k.yl").first()[0];
     var referenceTitle1;
     var referenceTitle2;
@@ -67,24 +68,51 @@ if (window==top) {
       referenceTitle = $("a[href^='/sparks']").first();
       referenceBreak = referenceTitle.prev();
       referenceMenu = $('#content a[href|="/notifications/all"]');
-      middle = $("#contentPane").find("div[aria-live|='polite']").first();
-      referenceContent = middle.first("div");
-      referenceTitle1 = middle.parent().find("div").eq(0);
-      var tmp = middle.parent().children("div").eq(1);
-      if (referenceTitle1[0]==middle[0] || tmp[0]==middle[0]) { //sparks
+      var page = window.location.pathname;
+      var isSparks=page.indexOf("sparks");
+      var isSparksSub = page.indexOf("sparks/");
+      var isWelcome=page.indexOf("welcome");
+      var isNotifications=page.indexOf("notifications");
+      var isStream=page.indexOf("stream");
+      if (isStream>0) {
+        middle = $("#contentPane").find("div[aria-live|='polite']").first();
+        referenceContent = middle.first("div");
+        referenceTitle1 = middle.parent().find("div").eq(0);
+        referenceTitle2 = middle.parent().find("div").eq(1);
+        referenceTitle3 = undefined;
+      } else if (isSparksSub>0) {
+        middle = $("#contentPane").find("div[aria-live|='polite']").first();
+        referenceContent = middle.first("div");
         referenceTitle1 = middle.parent().parent().find("div").eq(0);
         referenceTitle2 = middle.parent().parent().children("div").eq(1);
-        tmp = middle.parent().parent().children("div").eq(2);
-        if (tmp[0]!=middle[0])
-          referenceTitle3 = tmp;
-        else
-          referenceTitle3 = undefined;
+        referenceTitle3 = undefined;
+      } else if (isSparks>0) {
+        middle = $("#contentPane").find("div[aria-live|='polite']").first();
+        referenceContent = middle.first("div");
+        referenceTitle1 = middle.parent().parent().find("div").eq(0);
+        referenceTitle2 = middle.parent().parent().children("div").eq(1);
+        referenceTitle3 = middle.parent().parent().children("div").eq(2);
+      } else if (isNotifications>0) {
+        middle = $("#contentPane>div>div").children("div").eq(1);
+        referenceContent = middle.first("div");
+        referenceTitle1 = middle.parent().find("div").eq(0);
+        referenceTitle2 = undefined;
+        referenceTitle3 = undefined;
       } else {
+        middle = $("#contentPane").find("div[aria-live|='polite']").first();
+        referenceContent = middle.first("div");
+        referenceTitle1 = middle.parent().find("div").eq(0);
         referenceTitle2 = middle.parent().find("div").eq(1);
+        referenceTitle3 = undefined;
       }
     }
 
     function start() {
+      updateReferences();
+      if (reference.length==0) {
+        setTimeout(start,1000);
+        return;
+      }
       chrome.extension.sendRequest({
         method:"GET",
         dataType:'text',
@@ -95,7 +123,6 @@ if (window==top) {
       );
       elements = [];
       unread = [];
-      updateReferences();
       getUnread();
       middle.parent().bind('DOMSubtreeModified',updateReferences);
       updater();
@@ -202,34 +229,46 @@ if (window==top) {
       var elementList = $("<div>");
       var count = elements.length;
       for (var i=0;i<count;i++) {
-        var li = $("<a>");
-        var txt =elements[i].name;
-        if (elements[i].count!=undefined) {
-          txt += " ("+elements[i].count+")";
-          li.css('font-weight','bold');
-        }
+        var li = $("<div>");
         var classes = reference.attr('class').split(' ');
         if (reference.css('color')=="rgb(221, 75, 57)")
           classes.pop();
-        li.text(txt)
-          .addClass(classes.join(' '));
+        li.addClass(classes.join(' '));
+        li.css('background-image','none');
+        li.css('margin-left','0');
+        li.css('padding-left','0');
+        var open = $("<span>")
+            .text('+')
+            .addClass(referenceOpen);
+        li.append(open);
+        var txt =elements[i].name;
+        var tagname = $("<span>");
+        if (elements[i].count!=undefined) {
+          txt += " ("+elements[i].count+")";
+          tagname.css('font-weight','bold');
+        }
+        tagname.text(txt);
+        li.append(tagname);
         var id = elements[i].id;
-        li.click((function(id,i) {
+        tagname.click((function(id,i) {
           return function() {
-            var newClass = $(this).parent().parent().parent().find("*").filter(function() {
+            var newClass = $(this).parent().parent().parent().parent().find("*").filter(function() {
               return $(this).css('color')=="rgb(221, 75, 57)";
             }).attr('class').split(' ').pop();
             $("."+newClass).removeClass(newClass);
             updateReferences();
             currentTag = elements[i];
             currentMax=0;
+            var middleTop = middle.offset().top;
             middle.empty();
             showingEverything=false;
             referenceTitle1.empty().text("Google Reader - " + currentTag.name);
-            referenceTitle2.removeClass().empty();
+            if (referenceTitle2!=undefined)
+              referenceTitle2.removeClass().empty();
             if (referenceTitle3!=undefined)
               referenceTitle3.remove();
-            tags[i].addClass(newClass);
+            tags[i].parent().addClass(newClass);
+            tags[i].parent().children().eq(0).css('color','#DD4B39');
             if (!showRead && (currentTag.count==undefined || currentTag.count==0)) {
               showingEverything=true;
               middle.append($("<div>").addClass("noitems").text("No new items"));
@@ -242,20 +281,25 @@ if (window==top) {
                 function(data) {
                   referenceTitle1.parent().unbind("DOMNodeRemoved");
                   middle.empty();
-                  referenceTitle1.parent().bind("DOMNodeRemoved",function() {
-                    $(".googleplusreader ."+newClass).removeClass(newClass);
-                  });
+                  referenceTitle1.parent().bind("DOMNodeRemoved",(function(el) {
+                    return function() {
+                      if (newClass!=undefined && newClass!="") {
+                        el.parent().children().eq(0).css('color','#CCC');
+                        el.parent().removeClass(newClass);
+                      }
+                    }
+                  })(tags[i]));
                   middle.append(show(data));
                   middle.find("img").css('max-width',middle.find(".summary").width());
                 }
               );
             }
-            if (middle.offset().top<$("body").scrollTop())
-              $("body").scrollTop(middle.offset().top);
+            if (middleTop<$("body").scrollTop())
+              $("body").scrollTop(middleTop);
           };
         })(id,i));
         elementList.append(li);
-        tags.push(li);
+        tags.push(tagname);
       }
       googleReader = $("<div>")
         .addClass("googleplusreader");

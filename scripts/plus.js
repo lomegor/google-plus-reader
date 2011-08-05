@@ -56,6 +56,7 @@ if (window==top) {
     var referenceShareButton = $("span[role|='button'].d-k.yl").first()[0];
     var referenceTitle1;
     var referenceTitle2;
+    var referenceTitle3;
 
     var token;
     var currentTag;
@@ -72,7 +73,12 @@ if (window==top) {
       var tmp = middle.parent().children("div").eq(1);
       if (referenceTitle1[0]==middle[0] || tmp[0]==middle[0]) { //sparks
         referenceTitle1 = middle.parent().parent().find("div").eq(0);
-        referenceTitle2 = middle.parent().parent().find("div").eq(1);
+        referenceTitle2 = middle.parent().parent().children("div").eq(1);
+        tmp = middle.parent().parent().children("div").eq(2);
+        if (tmp[0]!=middle[0])
+          referenceTitle3 = tmp;
+        else
+          referenceTitle3 = undefined;
       } else {
         referenceTitle2 = middle.parent().find("div").eq(1);
       }
@@ -202,8 +208,11 @@ if (window==top) {
           txt += " ("+elements[i].count+")";
           li.css('font-weight','bold');
         }
+        var classes = reference.attr('class').split(' ');
+        if (reference.css('color')=="rgb(221, 75, 57)")
+          classes.pop();
         li.text(txt)
-          .addClass(reference.attr('class'));
+          .addClass(classes.join(' '));
         var id = elements[i].id;
         li.click((function(id,i) {
           return function() {
@@ -218,6 +227,8 @@ if (window==top) {
             showingEverything=false;
             referenceTitle1.empty().text("Google Reader - " + currentTag.name);
             referenceTitle2.removeClass().empty();
+            if (referenceTitle3!=undefined)
+              referenceTitle3.remove();
             tags[i].addClass(newClass);
             if (!showRead && (currentTag.count==undefined || currentTag.count==0)) {
               showingEverything=true;
@@ -239,7 +250,8 @@ if (window==top) {
                 }
               );
             }
-            $("body").scrollTop(middle.offset().top);
+            if (middle.offset().top<$("body").scrollTop())
+              $("body").scrollTop(middle.offset().top);
           };
         })(id,i));
         elementList.append(li);
@@ -249,9 +261,12 @@ if (window==top) {
         .addClass("googleplusreader");
       var separator = $("<div>")
         .addClass(referenceBreak.attr('class'));
+      var classes = referenceTitle.attr('class').split(' ');
+      if (referenceTitle.css('color')=="rgb(221, 75, 57)")
+        classes.pop();
       var title = $("<div>") 
-        .text("Google Reader")
-        .addClass(referenceTitle.attr('class'))
+        .text("Reader")
+        .addClass(classes.join(' '))
         .click(function() {
           updateUnread();
         });

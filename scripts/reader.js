@@ -1,7 +1,6 @@
 var referenceWindow;
 var referenceShare;
 var referenceIframe;
-console.log($("body"));
 var firstTime = true;
 
 var referenceEntryActionsSelector ="div.entry-actions";

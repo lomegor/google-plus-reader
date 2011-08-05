@@ -9,7 +9,6 @@ function checkOk() {
 }
 function postUrlGetOk(url,tab) {
   if (!ok) {
-    console.log("sended");
     chrome.tabs.sendRequest(tab.id, {href:url}, function() {
       ok=true;
     });
@@ -21,7 +20,19 @@ function postUrlGetOk(url,tab) {
 
 chrome.extension.onRequest.addListener(
   function (request,sender,sendResponse) {
-    if (request.reader) {
+    console.log(request);
+    if (request.method=="status") {
+      data = {};
+      data.useGooglePlus=localStorage["useGooglePlus"]=="true"?true:false;
+      data.showRead=localStorage["showRead"]=="true"?true:false;
+      sendResponse(data);
+    } else if (request.method=="changeShowRead"){
+      if (localStorage["showRead"]=="true")
+        localStorage["showRead"]="false"
+      else
+        localStorage["showRead"]="true"
+      sendResponse("ok");
+    } else if (request.reader) {
       chrome.tabs.getSelected(null, function(tab) {
         postUrlGetOk(request.href,tab);
       });
@@ -37,6 +48,18 @@ chrome.extension.onRequest.addListener(
         },
         error:function(jqXHR,text,error) {
           console.log(jqXHR);
+        }
+        });
+    } else if (request.method=="POST") {
+      $.ajax({
+        type:"POST",
+        url:request.url,
+        data:request.data,
+        success:function(data) {
+          sendResponse(data);
+        },
+        error:function(jqXHR,text,error) {
+          sendResponse("ERROR");
         }
         });
     }

@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Options for Goole+Reader</title>
+  <script type="text/javascript">
+    function loadOptions() {
+      var useGooglePlus = localStorage["useGooglePlus"];
+      if (useGooglePlus==undefined)
+        useGooglePlus = true;
+      if (useGooglePlus=="true") {
+        document.getElementById("plus").checked=true;
+      }
+      var showRead = localStorage["showRead"];
+      if (showRead==undefined)
+        showRead = true;
+      if (showRead=="true") {
+        document.getElementById("read").checked=true;
+      }
+    }
+    function saveOptionsPlus() {
+      if (document.getElementById("plus").checked) 
+        localStorage["useGooglePlus"]=true;
+      else 
+        localStorage["useGooglePlus"]=false;
+    }
+    function saveOptionsRead() {
+      if (document.getElementById("read").checked)
+        localStorage["showRead"]=true;
+      else 
+        localStorage["showRead"]=false;
+    }
+  </script>
+  <style type="text/css">
+    body {
+      background-color:#333;
+    }
+    #wrapper {
+      background-color:white;
+      width:30%;
+      margin:auto;
+      margin-top:10%;
+      border:4px solid black;
+      border-radius:10px;
+      font-size:25px;
+      overflow:hidden;
+      padding:10px;
+    }
+    #wrapper img {
+      position:absolute;
+      top:23%;
+      left:62%;
+      height:80px;
+    }
+  </style>
+</head>
+<body onload="loadOptions()">
+  <div id="wrapper">
+    <div>
+      <input id="plus" onclick="saveOptionsPlus()" type="checkbox" name="useGooglePlus" value="Should Google Reader be added to Google+" />
+      Add Google Reader to Google+
+    </div>
+    <div>
+      <input id="read" onclick="saveOptionsRead()" type="checkbox" name="showRead" value="Show Read Items?">
+      Show Read Items on Google+
+    </div>
+    <img src="icon.png">
+  </div>
+</body>
+</html>

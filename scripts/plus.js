@@ -437,7 +437,7 @@ if (window==top) {
       chrome.extension.sendRequest({
         method:"POST",
         url:"http://www.google.com/reader/api/0/edit-tag?client=googleplusreader",
-        data:{"i":id,"r":"user/-/state/com.google/kept-unread","a":"user/-/state/com.google/read","ac":"edit","T":token}},
+        data:{"i":id,"a":"user/-/state/com.google/read","ac":"edit","T":token}},
         function(data) {
           if (data=="ERROR") {
             entry.click(function(){markRead(id,entry)});

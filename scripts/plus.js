@@ -74,7 +74,8 @@ if (window==top) {
       var isWelcome=page.indexOf("welcome");
       var isNotifications=page.indexOf("notifications");
       var isStream=page.indexOf("stream");
-      if (isStream>0) {
+      var isReader= $("#contentPane").find("*:contains('Google Reader -')").length;
+      if (isStream>0 || isReader>0) {
         middle = $("#contentPane").find("div[aria-live|='polite']").first();
         referenceContent = middle.first("div");
         referenceTitle1 = middle.parent().find("div").eq(0);
@@ -260,6 +261,7 @@ if (window==top) {
             currentTag = elements[i];
             currentMax=0;
             var middleTop = middle.offset().top;
+            middle.attr('aria-live','polite');
             middle.empty();
             showingEverything=false;
             referenceTitle1.empty().text("Google Reader - " + currentTag.name);

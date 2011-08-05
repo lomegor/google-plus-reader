@@ -104,4 +104,11 @@ function xml2json(xml) {
 
  return obj;
 };
+function firstTime() {
+      if (localStorage["useGooglePlus"]==undefined)
+        localStorage["useGooglePlus"] = "true";
+      if (localStorage["showRead"]==undefined)
+        localStorage["showRead"] = "true";
+};
+firstTime();
 </script>

@@ -4,14 +4,18 @@
   <script type="text/javascript">
     function loadOptions() {
       var useGooglePlus = localStorage["useGooglePlus"];
-      if (useGooglePlus==undefined)
-        useGooglePlus = true;
+      if (useGooglePlus==undefined) {
+        useGooglePlus = "true";
+        localStorage["useGooglePlus"] = "true";
+      }
       if (useGooglePlus=="true") {
         document.getElementById("plus").checked=true;
       }
       var showRead = localStorage["showRead"];
-      if (showRead==undefined)
-        showRead = true;
+      if (showRead==undefined) {
+        showRead = "true";
+        localStorage["showRead"] = "true";
+      }
       if (showRead=="true") {
         document.getElementById("read").checked=true;
       }

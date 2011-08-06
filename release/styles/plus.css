@@ -1,0 +1,80 @@
+/**
+ Copyright 2011 Sebastian Ventura
+ This file is part of Google+Reader.
+
+ Google+Reader is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ Foobar is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with Google+Reader.  If not, see <http://www.gnu.org/licenses/>.
+**/
+.googleplusreader {
+  margin-top:10px;
+}
+.entry {
+  background-color: white;
+  border-bottom: 1px solid transparent;
+  border-left: 1px solid transparent;
+  border-top: 1px solid #EEE;
+  clear: both;
+  font-size: 13px;
+  line-height: 1.4;
+  outline: none;
+  padding: 16px 21px;
+  position: relative;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  word-wrap: break-word;
+  padding-bottom:20px;
+}
+.entry.unread {
+  border-left:2px solid #36c;
+}
+.entry .title {
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight:bold;
+  margin-bottom: 20px;
+  display:inline-block;
+}
+.entry .share {
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+  float:right;
+}
+.noitems {
+  background-color: white;
+  border-bottom: 1px solid transparent;
+  border-left: 1px solid transparent;
+  border-top: 1px solid #EEE;
+  clear: both;
+  font-size: 13px;
+  line-height: 1.4;
+  outline: none;
+  padding: 16px 21px;
+  position: relative;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  padding-bottom:20px;
+  text-align:center;
+  color:black;
+  font-size:20px;
+}
+.open {
+  font-weight:bold;
+  color:#CCC;
+  float:left;
+  height:100%;
+  font-size:15px;
+  margin-left:10px;
+  margin-right:10px;
+}

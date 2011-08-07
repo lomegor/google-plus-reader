@@ -16,6 +16,9 @@
  along with Google+Reader.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
+/**
+ * GOOGLE+ GOOGLE READER INTEGRATION 
+ **/
 if (window==top) {
   var showRead=false;
   chrome.extension.sendRequest({
@@ -610,41 +613,62 @@ if (window==top) {
       }
     }
   }
-} else {
-  var referenceAddLinkSelector ='#nw-content span[title|="Add link"]';
-  var referenceLinkSelector = "#summary-view input"; //first
-  //var referenceAddSelector = referenceLink.parent().parent().parent().find("div[role|='button']")
-  var referenceCloseLink = "#summary-view div[tabindex|='0']"; //second
 
+
+/**
+ * SHARE BOX OPENING FOR IFRAME
+ **/
+} else {
+
+  //reference Selectors... may change when google+ changes
+  var referenceAddLinkSelector ="#nw-content span:nth-child(3)";
+  var referenceLinkSelector = "#summary-view input:eq(0)";
+  var referenceAddSelector = "div[role|='button']:eq(0)";
+  var referenceCloseLink = "#summary-view div[tabindex|='0']:eq(1)";
+
+  //listen on request to use share box
   chrome.extension.onRequest.addListener(
       function (request,sender,sendResponse) {
+        //let bacground know we received the request
         sendResponse();
         loopAddLink(request.href);
       });
 
+  //loop that checks continously checks if the page is loaded
+  //and add the link if it is
   function loopAddLink(url) {
     try {
       var evt;
-      var closeLink = $(referenceCloseLink).eq(1);
+      //if close link exist, first close the last link added
+      //to start anew
+      var closeLink = $(referenceCloseLink);
       if (closeLink.length>0) {
         var evt = document.createEvent("MouseEvents");
         evt.initMouseEvent("click","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
         closeLink[0].dispatchEvent(evt);
       }
+
+      //if add link exist, click it to add the new link
+      //if it doesnt, throw exception to keep it in loop
+      //until loaded
       evt = document.createEvent("HTMLEvents");
       evt.initEvent("click","true","true");
       var addlink = $(referenceAddLinkSelector)[0];
       addlink.dispatchEvent(evt);
-      var link = $(referenceLinkSelector).first();
+      var link = $(referenceLinkSelector);
       if (link.length==0)
         throw "not loaded";
 
+      //Do a keypress event so it enables the add button
+      //next to the textbox and copy url
       evt = document.createEvent("HTMLEvents");
       evt.initEvent("keypress","true","true");
       link[0].dispatchEvent(evt);
       link.val(url);
 
-      var add = link.parent().parent().parent().find("div[role|='button']");
+      //find add button and create a mousedown, mouseup and click event
+      //only a click event wont work...
+      var add = $(referenceAddSelector);
       var evt = document.createEvent("MouseEvents");
       evt.initMouseEvent("mousedown","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
       add[0].dispatchEvent(evt);
@@ -654,7 +678,9 @@ if (window==top) {
       var evt = document.createEvent("MouseEvents");
       evt.initMouseEvent("click","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
       add[0].dispatchEvent(evt);
+
     } catch (error) {
+      //if there was an error, try to run this function again
       setTimeout(function(){loopAddLink(url)},500);
     }
   }

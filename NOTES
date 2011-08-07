@@ -1,0 +1,16 @@
+BUGS:
+* if showRead, all elements loaded
+* when click on share, j/k broken
+* when clicking too fast, lose styles on list
+* title in text, and not html
+* NaN when reading articles?
+* Dont add another content please!
+* Fix references
+
+FEATURES;
+* Add tree view of feeds
+* j when in the end of document should mark as read
+* Add subtitle with name of feed
+* maybe add date?
+* On google reader add plus symbol to share
+

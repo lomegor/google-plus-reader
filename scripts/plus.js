@@ -404,7 +404,7 @@ if (window==top) {
         currentTag.count=0;
       if (!showRead && currentTag.count==0)
         return;
-      if (!showRead && currentTag.count<maxElements)
+      if (!showRead && currentTag.count>maxElements)
         maxElements=currentTag.count;
       for (var i=0; i<count; i++) {
         var count2 = entries[i].category.length;

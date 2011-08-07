@@ -16,8 +16,13 @@
  along with Google+Reader.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
+/**
+ * GOOGLE+ GOOGLE READER INTEGRATION 
+ **/
 if (window==top) {
+  //should we show read items?
   var showRead=false;
+  //ask backgroudn to give me options and start add google reader if set
   chrome.extension.sendRequest({
     method:"status"},
     function(data) {
@@ -26,7 +31,274 @@ if (window==top) {
         addGoogleReader();
     }
   );
+
+
+  //main closure 
   function addGoogleReader() {
+
+    /** OBJECTS **/
+    //Feed element
+    function Feed(data) {
+
+      this.id = data.id;
+      this.name = data.title;
+      this.unreadCount = 0;
+      this.tags = [];
+      this.DOM;
+      this.DOMtagname;
+
+      //keep reference
+      var that = this;
+
+      var list = data.categories;
+      var count = list.length
+      for (var i=0; i<count; i++) {
+        all[list[i].id].addFeed(that);
+        that.tags.push(all[list[i].id]);
+      }
+
+      this.init = function() {
+        that.DOM = $("<div>");
+        //see the reference for classes, if its red, remove last
+        //class. Reset attributes we wont be using
+        var classes = referenceRoot.attr('class').split(' ');
+        //we dont want no red
+        if (referenceRoot.css('color')==referenceRedColor)
+          classes.pop();
+        that.DOM.addClass(classes.join(' '));
+        that.DOM.css('background-image','none');
+
+        var txt;
+        if (that.name.length>10)
+          txt = that.name.substr(0,10) + "...";
+        else
+          txt = that.name;
+        that.DOMtagname = $("<div>");
+        if (that.unreadCount>0) {
+          txt += " ("+that.unreadCount+")";
+          tagname.css('font-weight','bold');
+        }
+        that.DOMtagname.text(txt);
+        that.DOM.append(that.DOMtagname);
+
+        that.DOMtagname.click(function() {
+          showItems(that);
+        });
+      }
+      this.updateCount = function(unread) {
+        if (unread!=that.unreadCount) {
+          that.unreadCount=unread;
+          var txt = that.name;
+          that.DOMtagname.css('font-weight','');
+          if (that.unreadCount>0) {
+            txt += " ("+that.unreadCount+")";
+            that.DOMtagname.css('font-weight','bold');
+          }
+          that.DOMtagname.text(txt);
+        }
+      }
+
+      this.isRoot = function() {
+        return that.tags.length==0;
+      }
+      this.turnRedOn = function(){
+        //red ALL the things!
+        that.DOM.addClass(referenceRedClass);
+      }
+      this.turnRedOff = function(){
+        that.DOM.removeClass(referenceRedClass);
+      }
+    }
+    //Tag element, contains Feed elements
+    function Tag(rcvdid,rcvdname) {
+      //feeds in this tag
+      this.feeds = [];
+      this.id = rcvdid;
+      this.name = rcvdname;
+      this.unreadCount = 0;
+      this.DOM;
+      this.DOMmain;
+      this.DOMopen;
+      this.DOMtagname;
+      this.DOMfeeds;
+
+      var that = this;
+
+      this.addFeed = function(feed) {
+        that.feeds.push(feed);
+      }
+      this.isRoot = function() {
+        return true;
+      }
+
+
+      this.init = function() {
+        that.DOM = $("<div>");
+        that.DOMmain = $("<div>");
+        //see the reference for classes, if its red, remove last
+        //class. Reset attributes we wont be using
+        var classes = referenceRoot.attr('class').split(' ');
+        //we dont want no red
+        if (referenceRoot.css('color')==referenceRedColor)
+          classes.pop();
+        that.DOMmain.addClass(classes.join(' '));
+        that.DOMmain.css('background-image','none');
+        that.DOMmain.css('margin-left','0');
+        that.DOMmain.css('padding-left','0');
+
+        //add plus button to open tag
+        that.DOMopen = $("<span>")
+          .text('+')
+          .addClass(referenceOpen);
+        //add click function for open
+        that.DOMopen.click(function() {
+          showTree(that);
+        });
+
+        that.DOMmain.append(that.DOMopen);
+
+
+        var txt;
+        if (that.name.length>10)
+          txt = that.name.substr(0,10) + "...";
+        else
+          txt = that.name;
+        that.DOMtagname = $("<div>");
+        if (that.unreadCount>0) {
+          txt += " ("+that.unreadCount+")";
+          that.DOMtagname.css('font-weight','bold');
+        }
+        that.DOMtagname.text(txt);
+        that.DOMmain.append(that.DOMtagname);
+
+        that.DOM.append(that.DOMmain);
+
+        that.DOMtagname.click(function() {
+          showItems(that);
+        });
+
+        that.DOMfeeds = $("<div>").addClass(referenceSubTagClass);
+        for (var h in that.feeds) {
+          if (that.feeds[h].DOM==undefined)
+            that.feeds[h].init();
+          that.DOMfeeds.append(that.feeds[h].DOM.css('display','block'));
+        }
+        that.DOMfeeds.css('display','none');
+        that.DOM.append(that.DOMfeeds);
+      }
+      this.updateCount = function(unread) {
+        if (unread!=that.unreadCount) {
+          that.unreadCount=unread;
+          var txt = that.name;
+          that.DOMtagname.css('font-weight','');
+          if (that.unreadCount>0) {
+            txt += " ("+that.unreadCount+")";
+            that.DOMtagname.css('font-weight','bold');
+          }
+          that.DOMtagname.text(txt);
+        }
+      }
+
+      this.turnRedOn = function(){
+        //red ALL the things!
+        that.DOMopen.css('color',referenceRedColor);
+        that.DOMmain.addClass(referenceRedClass);
+      }
+      this.turnRedOff = function() {
+        that.DOMopen.css('color','#CCC');
+        that.DOMmain.removeClass(referenceRedClass);
+      }
+    }
+
+    function showTree(element) {
+      if (element.DOMfeeds.css('display')=='none') {
+        element.DOMopen.text('-');
+        element.DOMfeeds.css('display','block');
+      } else {
+        element.DOMopen.text('+');
+        element.DOMfeeds.css('display','none');
+      }
+    }
+
+    function showItems(element) {
+      updateReferences(); //just in case
+      //remove red from all items
+      $("."+referenceRedClass).removeClass(referenceRedClass);
+      currentTag = element; //set current tag
+      currentUnreadCount = element.unreadCount;
+
+      currentMax=0;
+
+      //get top before modifying
+      var titleTop = referenceTitle1.offset().top;
+
+      //add this to middle if it doesnt have it
+      middle.attr('aria-live','polite');
+      middle.empty();
+
+      //Set new title
+      referenceTitle1.empty().text("Google Reader - " + currentTag.name);
+      //remove titles that we are not using
+      if (referenceTitle2!=undefined)
+        referenceTitle2.removeClass().empty();
+      if (referenceTitle3!=undefined)
+        referenceTitle3.empty();
+
+
+      element.turnRedOn();
+
+
+      //if someone touches our DOM, we will remove our red
+      referenceTitle1.parent().bind("DOMNodeRemoved",function() {
+        element.turnRedOff();
+        referenceTitle1.unbind("DOMNodeRemoved",this);
+      });
+
+      //if we are not showing read items and the current unread count is 0
+      //not requesting anything
+      if (!showRead && currentTag.unreadCount==0) {
+        middle.append($("<div>").addClass("noitems").text("No new items"));
+      } else {
+        //add loading text and request feeds
+        middle.append($("<div>").addClass("noitems").text("Loading..."));
+        //if not showing read, not requestin read
+        var xt="";
+        if (!showRead) {
+          xt="?xt=user/-/state/com.google/read";
+        }
+        chrome.extension.sendRequest({
+          method:"GET",
+          dataType:'xml',
+          url:"http://www.google.com/reader/atom/"+currentTag.id+xt},
+          function(data) {
+            //not going to fall into infinite loop, thanks
+            referenceTitle1.parent().unbind("DOMNodeRemoved");
+
+            //remove loading
+            middle.empty();
+            //lets add our new found data!
+            var list = show(data);
+            var count = list.length;
+            for (var i=0;i<count;i++)
+              middle.append(list[i]);
+            //fix images
+            middle.find("img").css('max-width',middle.find(".summary").width());
+            referenceTitle1.parent().bind("DOMNodeRemoved",function() {
+              element.turnRedOff();
+              referenceTitle1.unbind("DOMNodeRemoved",this);
+            });
+          }
+        );
+      }
+      //scroll to the top <==> we are not at the top already!
+      if (titleTop<$("body").scrollTop())
+        $("body").scrollTop(titleTop-10);
+    }
+
+
+    //all elements
+    var all = {};
+
     var elements=[];
     var unread=[];
     var tags = [];
@@ -36,16 +308,17 @@ if (window==top) {
     var currentEntry=0;
     var currentMax=0;
     var continuation;
-    var showingEverything=false;
     var showButton;
 
     //references to copy classes
-    var reference;
+    var referenceRoot;
     var referenceTitle;
     var referenceBreak;
     var referenceMenu;
+    var referenceRedClass;
     var middle;
     var referenceContent;
+    var referenceRedColor = "rgb(221, 75, 57)";
     var referenceEntry = "entry";
     var referenceEntryTitle = "title";
     var referenceSummary = "summary";
@@ -54,6 +327,7 @@ if (window==top) {
     var referenceMarkedUnread = "markedunread";
     var referenceUnread = "unread";
     var referenceOpen = "open";
+    var referenceSubTagClass = "subtag";
     var referenceShareButton = $("span[role|='button'].d-k.yl").first()[0];
     var referenceTitle1;
     var referenceTitle2;
@@ -61,13 +335,17 @@ if (window==top) {
 
     var token;
     var currentTag;
+    //save unread count vefore modifying it
+    var currentUnreadCount;
     var fetching=false;
 
     function updateReferences() {
-      reference = $("a[href^='/sparks/']").first();
+      referenceRoot = $("a[href^='/sparks/']").first();
       referenceTitle = $("a[href^='/sparks']").first();
       referenceBreak = referenceTitle.prev();
       referenceMenu = $('#content a[href|="/notifications/all"]');
+
+
       var page = window.location.pathname;
       var isSparks=page.indexOf("sparks");
       var isSparksSub = page.indexOf("sparks/");
@@ -75,7 +353,7 @@ if (window==top) {
       var isNotifications=page.indexOf("notifications");
       var isStream=page.indexOf("stream");
       var isReader= $("#contentPane").find("*:contains('Google Reader -')").length;
-      if (isStream>0 || isReader>0) {
+      if (isStream>0) {
         middle = $("#contentPane").find("div[aria-live|='polite']").first();
         referenceContent = middle.first("div");
         referenceTitle1 = middle.parent().find("div").eq(0);
@@ -108,26 +386,13 @@ if (window==top) {
       }
     }
 
-    function start() {
-      updateReferences();
-      if (reference.length==0) {
-        setTimeout(start,1000);
-        return;
+    function update() {
+      if (googleReader!=undefined) {
+        googleReaderParent.unbind('DOMSubtreeModified',update);
+        updateReferences();
+        googleReader.insertAfter(referenceMenu);
+        googleReaderParent.bind("DOMSubtreeModified",update);
       }
-      chrome.extension.sendRequest({
-        method:"GET",
-        dataType:'text',
-        url:"http://www.google.com/reader/api/0/token?ck="+Math.round(Date.now()/1000)+"&client=googleplusereader"},
-        function(data) {
-          token=data;
-        }
-      );
-      elements = [];
-      unread = [];
-      getUnread();
-      middle.parent().bind('DOMSubtreeModified',updateReferences);
-      updater();
-      updaterUnread();
     };
 
     function updater() {
@@ -137,14 +402,40 @@ if (window==top) {
       },5000);
     }
 
+    function start() {
+      updateReferences();
+      if (referenceRoot.length==0) {
+        setTimeout(start,1000);
+        return;
+      }
+      var newReferenceRed = referenceMenu.parent().find("*").filter(function() {
+         return $(this).css('color')==referenceRedColor;
+      });
+      if (newReferenceRed.length!=0)
+        referenceRedClass = newReferenceRed.attr('class').split(' ').pop();
+
+      chrome.extension.sendRequest({
+        method:"GET",
+        dataType:'text',
+        url:"http://www.google.com/reader/api/0/token?ck="+Math.round(Date.now()/1000)+"&client=googleplusereader"},
+        function(data) {
+          token=data;
+        }
+      );
+      getAll();
+      middle.parent().bind('DOMSubtreeModified',updateReferences);
+      updater();
+      updaterUnread();
+    };
+
     function updaterUnread() {
       setTimeout(function() {
-        updateUnread();
+        getUnreadCount();
         updaterUnread();
       },60000);
     }
 
-    function updateUnread() {
+    function getUnreadCount() {
       chrome.extension.sendRequest({
         method:"GET",
         dataType:'json',
@@ -152,171 +443,89 @@ if (window==top) {
         function(data) {
           var rcvdunread = data.unreadcounts;
           var count = rcvdunread.length;
-          var count2 = elements.length;
-          for (var j=0; j<count2 && !found; j++) {
-            elements[j].count=undefined;
-          }
           for (var i=0; i<count; i++) {
-            var found=false;
-            for (var j=0; j<count2 && !found; j++) {
-              if (elements[j].id==rcvdunread[i].id) {
-                found=true;
-                elements[j].count=rcvdunread[i].count;
-              }
-            }
+            if (all[rcvdunread[i].id]!=undefined)
+              all[rcvdunread[i].id].updateCount(rcvdunread[i].count);
           }
           update();
         }
       );
     }
 
-
-    function getUnread() {
-      chrome.extension.sendRequest({
-        method:"GET",
-        dataType:'json',
-        url:"http://www.google.com/reader/api/0/unread-count?all=true&output=json"},
-        function(data) {
-          var rcvdunread = data.unreadcounts;
-          var count = rcvdunread.length;
-          for (var i=0; i<count; i++) {
-            unread[rcvdunread[i].id]=rcvdunread[i].count;
-          }
-          getTags();
-        }
-      );
-    };
-
-    function getTags() {
+    function getAll() {
       chrome.extension.sendRequest({
         method:"GET",
         dataType:'json',
         url:"http://www.google.com/reader/api/0/tag/list?output=json"},
         function(data) {
-          var rcvdtags=data.tags;
+          var rcvdtags = data.tags;
           var count = rcvdtags.length;
           for (var i=0;i<count;i++) {
             var matches = /user\/.*\/label\/(.*)/.exec(rcvdtags[i].id);
             if (matches!==null) {
-              elements.push({id:matches[0],name:matches[1],count:unread[rcvdtags[i].id]});
+              var tag = new Tag(matches[0],matches[1]);
+              all[rcvdtags[i].id]=tag;
             }
           }
-          getFeeds();
+          chrome.extension.sendRequest({
+            method:"GET",
+            dataType:'json',
+            url:"http://www.google.com/reader/api/0/subscription/list?output=json"},
+            function(data) {
+              var rcvdfeeds = data.subscriptions;
+              var count = rcvdfeeds.length;
+              for (var i=0;i<count;i++) {
+                var feed = new Feed(rcvdfeeds[i]);
+                all[rcvdfeeds[i].id]=feed;
+              }
+              createAll();
+            }
+          );
         }
       );
     };
 
-    function getFeeds() {
-      chrome.extension.sendRequest({
-        method:"GET",
-        dataType:'json',
-        url:"http://www.google.com/reader/api/0/subscription/list?output=json"},
-        function(data) {
-          var rcvdfeeds = data.subscriptions;
-          var count = rcvdfeeds.length;
-          for (var i=0;i<count;i++) {
-            var cats = rcvdfeeds[i].categories;
-            //If it's not in any category
-            if (cats.length==0) {
-              elements.push({id:rcvdfeeds[i].id,name:rcvdfeeds[i].title,count:unread[rcvdfeeds[i].id]});
-            }
-          }
-          createElements();
-        }
-      );
-    };
-
-    function createElements() {
-      var elementList = $("<div>");
-      var count = elements.length;
-      for (var i=0;i<count;i++) {
-        var li = $("<div>");
-        var classes = reference.attr('class').split(' ');
-        if (reference.css('color')=="rgb(221, 75, 57)")
-          classes.pop();
-        li.addClass(classes.join(' '));
-        li.css('background-image','none');
-        li.css('margin-left','0');
-        li.css('padding-left','0');
-        var open = $("<span>")
-            .text('+')
-            .addClass(referenceOpen);
-        li.append(open);
-        var txt =elements[i].name;
-        var tagname = $("<span>");
-        if (elements[i].count!=undefined) {
-          txt += " ("+elements[i].count+")";
-          tagname.css('font-weight','bold');
-        }
-        tagname.text(txt);
-        li.append(tagname);
-        var id = elements[i].id;
-        tagname.click((function(id,i) {
-          return function() {
-            var newClass = $(this).parent().parent().parent().parent().find("*").filter(function() {
-              return $(this).css('color')=="rgb(221, 75, 57)";
-            }).attr('class').split(' ').pop();
-            $("."+newClass).removeClass(newClass);
-            updateReferences();
-            currentTag = elements[i];
-            currentMax=0;
-            var middleTop = middle.offset().top;
-            middle.attr('aria-live','polite');
-            middle.empty();
-            showingEverything=false;
-            referenceTitle1.empty().text("Google Reader - " + currentTag.name);
-            if (referenceTitle2!=undefined)
-              referenceTitle2.removeClass().empty();
-            if (referenceTitle3!=undefined)
-              referenceTitle3.remove();
-            tags[i].parent().addClass(newClass);
-            tags[i].parent().children().eq(0).css('color','#DD4B39');
-            if (!showRead && (currentTag.count==undefined || currentTag.count==0)) {
-              showingEverything=true;
-              middle.append($("<div>").addClass("noitems").text("No new items"));
-            } else {
-              middle.text("Loading...");
-              chrome.extension.sendRequest({
-                method:"GET",
-                dataType:'xml',
-                url:"http://www.google.com/reader/atom/"+id},
-                function(data) {
-                  referenceTitle1.parent().unbind("DOMNodeRemoved");
-                  middle.empty();
-                  referenceTitle1.parent().bind("DOMNodeRemoved",(function(el) {
-                    return function() {
-                      if (newClass!=undefined && newClass!="") {
-                        el.parent().children().eq(0).css('color','#CCC');
-                        el.parent().removeClass(newClass);
-                      }
-                    }
-                  })(tags[i]));
-                  middle.append(show(data));
-                  middle.find("img").css('max-width',middle.find(".summary").width());
-                }
-              );
-            }
-            if (middleTop<$("body").scrollTop())
-              $("body").scrollTop(middleTop);
-          };
-        })(id,i));
-        elementList.append(li);
-        tags.push(tagname);
+    function createAll() {
+      for (var el in all) {
+        if (all[el].DOM==undefined)
+          all[el].init();
       }
+      getUnreadCount();
+      writeAll();
+    }
+
+    function writeAll() {
+      var elementList = $("<div>");
+      for (var el in all) {
+        if (all[el].isRoot())
+          elementList.append(all[el].DOM);
+      }
+
+      //create our content
       googleReader = $("<div>")
         .addClass("googleplusreader");
+
+      //separator used for nice touch
       var separator = $("<div>")
         .addClass(referenceBreak.attr('class'));
+
+      //no red class please!!
       var classes = referenceTitle.attr('class').split(' ');
-      if (referenceTitle.css('color')=="rgb(221, 75, 57)")
+      if (referenceTitle.css('color')==referenceRedColor)
         classes.pop();
+
+      //nice title, if click, update my unread
       var title = $("<div>") 
         .text("Reader")
         .addClass(classes.join(' '))
         .click(function() {
-          updateUnread();
+          getUnreadCount();
         });
+
+      //append ALL the things!
       googleReader.append(separator,title,elementList);
+
+      //little button for changin preference
       showButton = $("<a>");
       if (!showRead) {
         showButton.text("Show Read");
@@ -326,25 +535,34 @@ if (window==top) {
         showButton.click(function(){hideRead()});
       }
       googleReader.append(showButton);
-      writeElements();
+      write();
+    }
+
+    function write() {
+      //insert in menu
+      googleReader.insertAfter(referenceMenu);
+      //set parent for reference now that we've inserted it
+      googleReaderParent=googleReader.parent();
+      //bind update if anything changes
+      //google+ has a thing for refreshing everything and removing
+      //my things...
+      googleReaderParent.bind("DOMSubtreeModified",update);
     };
 
+
+    //change preference in reading
+    //simple requests
     function showAll() {
       chrome.extension.sendRequest({
         method:"changeShowRead"},
         function() {
+          //change button
           showRead=true;
           showButton.unbind('click');
           showButton.text("Hide Read");
           showButton.click(function(){hideRead()});
-          var count = elements.length;
-          var found = false;
-          for (var i=0;i<count && !found;i++) {
-            if (elements[i]==currentTag) {
-              found=true;
-              tags[i].click();
-            }
-          }
+          //refresh view
+          currentTag.DOMtagname.click();
         }
       );
     }
@@ -356,56 +574,35 @@ if (window==top) {
           showButton.unbind('click');
           showButton.text("Show Read");
           showButton.click(function(){showAll()});
-          var count = elements.length;
-          var found = false;
-          for (var i=0;i<count && !found;i++) {
-            if (elements[i]==currentTag) {
-              found=true;
-              tags[i].click();
-            }
-          }
+          //refresh view
+          currentTag.DOMtagname.click();
         }
       );
     }
 
-    function writeElements() {
-      googleReader.insertAfter(referenceMenu);
-      googleReaderParent=googleReader.parent();
-      googleReaderParent.bind("DOMSubtreeModified",update);
-    };
 
-    function update() {
-      if (googleReader!=undefined) {
-        updateReferences();
-        googleReaderParent.unbind('DOMSubtreeModified',update);
-        var count = tags.length;
-        for (var i=0;i<count;i++) {
-          tags[i].css('font-weight','');
-          var txt = elements[i].name;
-          if (elements[i].count!=undefined && elements[i].count!=0) {
-            txt += " ("+elements[i].count+")";
-            tags[i].css('font-weight','bold');
-          }
-          tags[i].text(txt);
-        }
-        googleReader.insertAfter(referenceMenu);
-        googleReaderParent.bind("DOMSubtreeModified",update);
-      }
-    };
 
     function show(data) {
-      continuation = data.feed["gr:continuation"]["#text"];
+      var returnList = [];
+      //save our precious continuation key for updating content
+      if (data.feed["gr:continuation"]!=undefined)
+        continuation = data.feed["gr:continuation"]["#text"];
+      else
+        continuation = undefined;
       var maxElements=20;
       var entries = data.feed.entry;
       var count = entries.length;
-      var content = $("<div>").addClass(referenceContent.attr('class'));
-      var added = false;
-      if (currentTag.count==undefined)
-        currentTag.count=0;
-      if (!showRead && currentTag.count==0)
-        return;
-      if (!showRead && currentTag.count<maxElements)
-        maxElements=currentTag.count;
+      //when its only onew entry, greader give us the gift of changing everything
+      if (count==undefined) {
+        entries=[entries];
+        count=1;
+      }
+      //var content = $("<div>").addClass(referenceContent.attr('class'));
+      if (!showRead && currentTag.unreadCount>maxElements)
+        maxElements=currentTag.unreadCount;
+
+      //ok, iterate on entries
+      //not saving them because they change too much, not worth it
       for (var i=0; i<count; i++) {
         var count2 = entries[i].category.length;
         var read=false;
@@ -413,8 +610,9 @@ if (window==top) {
           if (entries[i].category[j]["@attributes"].label==="read")
             read=true;
         }
+
+        //only show if entry is not read or read items should be shown
         if (!read || showRead) {
-          added=true;
           var entry = $("<div>").addClass(referenceEntry);
           if (entries[i].link.length!=undefined) {
             entries[i].link=entries[i].link[0];
@@ -430,7 +628,7 @@ if (window==top) {
           var title = $("<a>")
             .addClass(referenceEntryTitle)
             .attr("href",entries[i].link["@attributes"].href)
-            .text(entries[i].title["#text"]);
+            .html(entries[i].title["#text"]);
           entry.append(title);
           if (entries[i].summary!=undefined) {
             var summary = $("<div>")
@@ -466,33 +664,19 @@ if (window==top) {
             }
           })(entries[i].id["#text"],entry));
           entry.append(markButton);
-          content.append(entry);
+          returnList.push(entry);
           currentMax++;
         }
       }
-      if (currentMax<maxElements) {
-        chrome.extension.sendRequest({
-          method:"GET",
-          dataType:'xml',
-          url:"http://www.google.com/reader/atom/"+currentTag.id+"?c="+continuation},
-          function(data) {
-            if (currentTag.count!=0) {
-              middle.append(show(data));
-              middle.find("img").css('max-width',middle.find(".summary").width());
-            }
-          }
-        );
-      } else if (!showRead) {
-        showingEverything=true;
-      }
-      if (!added) {
-        return;
-      } else {
-        return content;
-      }
+      //WARNING: Do not return notReturnList!!!!
+      return returnList;
     }
+
+    //start the engine!
     start();
 
+    //mark entry read... blah!
+    //should add a way of removing keep unread if it has it
     function markRead(id,entry) {
       entry.unbind('click');
       chrome.extension.sendRequest({
@@ -504,13 +688,13 @@ if (window==top) {
             entry.click(function(){markRead(id,entry)});
           } else {
             entry.removeClass(referenceUnread);
-            currentTag.count--;
+            currentTag.updateCount(currentTag.unreadCount-1);
             update();
           }
         }
       );
     }
-
+    //guess for yourself
     function markUnread(id,entry) {
       chrome.extension.sendRequest({
         method:"POST",
@@ -523,48 +707,54 @@ if (window==top) {
             entry.click(function() {
               markRead(id,entry);
             });
-            if (currentTag.count==undefined)
-              currentTag.count=1;
-            else
-              currentTag.count++;
+            currentTag.updateCount(currentTag.unreadCount+1);
             update();
           }
         }
       );
     }
 
+    //when someone scrolls, mark everything to the top as read
+    //unless is marked unread
     $(window).scroll(function(evt){
       var scroll = $(this).scrollTop();
       currentEntry=0;
       var vieweditems = $('.'+referenceEntry).filter(function(){
         return scroll>$(this).offset().top;
       }).each(function() {
-        markedTopRead($(this));
+        markReadAndFetch($(this));
       });
       evt.stopImmediatePropagation();
       evt.stopPropagation();
       evt.preventDefault();
     });
 
-    function markedTopRead(el) {
+    //mark element as read if its not marked unread and fetch next batch
+    //of items if at middle of content
+    function markReadAndFetch(el) {
       currentEntry++;
-      if (!fetching && currentMax-currentEntry<10 && !showingEverything) {
+      if (!fetching && currentMax-currentEntry<10 && (showRead || currentMax<currentUnreadCount)) {
         fetching=true;
         chrome.extension.sendRequest({
           method:"GET",
           dataType:'xml',
           url:"http://www.google.com/reader/atom/"+currentTag.id+"?c="+continuation},
           function(data) {
-            middle.append(show(data));
+            var list = show(data);
+            var count = list.length;
+            for (var i=0;i<count;i++)
+              middle.append(list[i]);
             middle.find("img").css('max-width',middle.find(".summary").width());
             fetching=false;
           }
           );
       }
+      //click to mark read... if its read, click unbinded
       if (!el.hasClass(referenceMarkedUnread))
         el.click();
     }
 
+    //cancel j k movements in google+ if they are directed to us
     function cancelOtherMove(evt) {
       if ($("."+referenceEntry).length>0) {
         if (evt.target==$("body")[0]) {
@@ -592,59 +782,80 @@ if (window==top) {
 
     //sharing functions
     var firstTime=true;
-    var referenceShareBox = $("#gbi3")[0];
+    var referenceShareBox = $("#gbi3");
     var referenceIframe = $("#gbsf");
+    //same as reader mostly
     function share(evt,url) {
       referenceIframe = $("#gbsf");
       if (firstTime || !referenceIframe.is(':visible')) {
         var topScroll = $("body").scrollTop()
         firstTime=false;
-        referenceShareBox.dispatchEvent(evt.originalEvent);
+        referenceShareBox[0].dispatchEvent(evt.originalEvent);
+        //absoluting box so it doesnt scroll to top
         referenceIframe.parent().css('position','fixed');
         referenceIframe.parent().css('background-color','white');
         referenceIframe.parent().css('border','1px solid #BEBEBE');
         $("body").scrollTop(topScroll);
       }
-      if (url!=undefined) {
-        chrome.extension.sendRequest({reader:true,href:url});
-      }
+      chrome.extension.sendRequest({reader:true,href:url});
     }
   }
-} else {
-  var referenceAddLinkSelector ='#nw-content span[title|="Add link"]';
-  var referenceLinkSelector = "#summary-view input"; //first
-  //var referenceAddSelector = referenceLink.parent().parent().parent().find("div[role|='button']")
-  var referenceCloseLink = "#summary-view div[tabindex|='0']"; //second
 
+
+/**
+ * SHARE BOX OPENING FOR IFRAME
+ **/
+} else {
+
+  //reference Selectors... may change when google+ changes
+  var referenceAddLinkSelector ="#nw-content span:nth-child(3)";
+  var referenceLinkSelector = "#summary-view input:eq(0)";
+  var referenceAddSelector = "div[role|='button']:eq(0)";
+  var referenceCloseLink = "#summary-view div[tabindex|='0']:eq(1)";
+
+  //listen on request to use share box
   chrome.extension.onRequest.addListener(
       function (request,sender,sendResponse) {
+        //let bacground know we received the request
         sendResponse();
         loopAddLink(request.href);
       });
 
+  //loop that checks continously checks if the page is loaded
+  //and add the link if it is
   function loopAddLink(url) {
     try {
       var evt;
-      var closeLink = $(referenceCloseLink).eq(1);
+      //if close link exist, first close the last link added
+      //to start anew
+      var closeLink = $(referenceCloseLink);
       if (closeLink.length>0) {
         var evt = document.createEvent("MouseEvents");
         evt.initMouseEvent("click","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
         closeLink[0].dispatchEvent(evt);
       }
+
+      //if add link exist, click it to add the new link
+      //if it doesnt, throw exception to keep it in loop
+      //until loaded
       evt = document.createEvent("HTMLEvents");
       evt.initEvent("click","true","true");
       var addlink = $(referenceAddLinkSelector)[0];
       addlink.dispatchEvent(evt);
-      var link = $(referenceLinkSelector).first();
+      var link = $(referenceLinkSelector);
       if (link.length==0)
         throw "not loaded";
 
+      //Do a keypress event so it enables the add button
+      //next to the textbox and copy url
       evt = document.createEvent("HTMLEvents");
       evt.initEvent("keypress","true","true");
       link[0].dispatchEvent(evt);
       link.val(url);
 
-      var add = link.parent().parent().parent().find("div[role|='button']");
+      //find add button and create a mousedown, mouseup and click event
+      //only a click event wont work...
+      var add = $(referenceAddSelector);
       var evt = document.createEvent("MouseEvents");
       evt.initMouseEvent("mousedown","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
       add[0].dispatchEvent(evt);
@@ -654,7 +865,9 @@ if (window==top) {
       var evt = document.createEvent("MouseEvents");
       evt.initMouseEvent("click","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
       add[0].dispatchEvent(evt);
+
     } catch (error) {
+      //if there was an error, try to run this function again
       setTimeout(function(){loopAddLink(url)},500);
     }
   }

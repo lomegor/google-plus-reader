@@ -53,8 +53,10 @@ if (window==top) {
       var list = data.categories;
       var count = list.length
       for (var i=0; i<count; i++) {
-        all[list[i].id].addFeed(that);
-        that.tags.push(all[list[i].id]);
+        if (all[list[i].id]!=undefined) {
+          all[list[i].id].addFeed(that);
+          that.tags.push(all[list[i].id]);
+        }
       }
 
       this.init = function() {
@@ -414,6 +416,15 @@ if (window==top) {
       if (newReferenceRed.length!=0)
         referenceRedClass = newReferenceRed.attr('class').split(' ').pop();
 
+      getAll();
+      middle.parent().bind('DOMSubtreeModified',updateReferences);
+      updater();
+      updaterUnread();
+      updateToken();
+      updaterToken();
+    };
+
+    function updateToken() {
       chrome.extension.sendRequest({
         method:"GET",
         dataType:'text',
@@ -422,11 +433,14 @@ if (window==top) {
           token=data;
         }
       );
-      getAll();
-      middle.parent().bind('DOMSubtreeModified',updateReferences);
-      updater();
-      updaterUnread();
-    };
+    }
+
+    function updaterToken() {
+      setTimeout(function() {
+        updateToken();
+        updaterToken();
+      },10*60*1000)
+    }
 
     function updaterUnread() {
       setTimeout(function() {
@@ -626,6 +640,7 @@ if (window==top) {
             })(entries[i].id["#text"],entry));
           }
           var title = $("<a>")
+            .attr('target','_blank')
             .addClass(referenceEntryTitle)
             .attr("href",entries[i].link["@attributes"].href)
             .html(entries[i].title["#text"]);

@@ -2,6 +2,7 @@ CHECK:
 * if continuation gives me only read
 
 BUGS:
+* Shortening titles
 
 FEATURES;
 * Fix references

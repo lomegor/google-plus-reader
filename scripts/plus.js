@@ -417,7 +417,7 @@ if (window==top) {
         referenceRedClass = newReferenceRed.attr('class').split(' ').pop();
 
       getAll();
-      middle.parent().bind('DOMSubtreeModified',updateReferences);
+      //middle.parent().bind('DOMSubtreeModified',updateReferences);
       updater();
       updaterUnread();
       updateToken();

@@ -344,8 +344,8 @@ if (window==top) {
     var fetching=false;
 
     function updateReferences() {
-      referenceRoot = $("a[href^='/sparks/']").first();
-      referenceTitle = $("a[href^='/sparks']").first();
+      referenceRoot = $("a[href^='/stream/']").first();
+      referenceTitle = $("a[href^='/welcome']").first();
       referenceBreak = referenceTitle.prev();
       referenceMenu = $('#content a[href|="/notifications/all"]');
 

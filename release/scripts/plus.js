@@ -407,6 +407,7 @@ if (window==top) {
     }
 
     function getAllTagsAndFeeds() {
+      console.log("Sending request for tags...");
       chrome.extension.sendRequest({
         method:"GET",
         dataType:'json',
@@ -437,9 +438,11 @@ if (window==top) {
           );
         }
       );
+      console.log("Sent request");
     };
 
     function start() {
+      console.log("Starting Google+Reader");
       updateReferences();
       if (referenceRoot.length==0) {
         setTimeout(start,1000);
@@ -451,7 +454,9 @@ if (window==top) {
       if (newReferenceRed.length!=0)
         referenceRedClass = newReferenceRed.attr('class').split(' ').pop();
 
+      console.log("Getting tags");
       getAllTagsAndFeeds();
+      console.log("Got tags");
       updater();
       updaterUnread();
       updateToken();

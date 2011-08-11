@@ -19,6 +19,8 @@
 /**
  * GOOGLE+ GOOGLE READER INTEGRATION 
  **/
+(function($) {
+
 if (window==top) {
   //should we show read items?
   var showRead=false;
@@ -404,6 +406,39 @@ if (window==top) {
       },5000);
     }
 
+    function getAllTagsAndFeeds() {
+      chrome.extension.sendRequest({
+        method:"GET",
+        dataType:'json',
+        url:"http://www.google.com/reader/api/0/tag/list?output=json"},
+        function(data) {
+          var rcvdtags = data.tags;
+          var count = rcvdtags.length;
+          for (var i=0;i<count;i++) {
+            var matches = /user\/.*\/label\/(.*)/.exec(rcvdtags[i].id);
+            if (matches!==null) {
+              var tag = new Tag(matches[0],matches[1]);
+              all[rcvdtags[i].id]=tag;
+            }
+          }
+          chrome.extension.sendRequest({
+            method:"GET",
+            dataType:'json',
+            url:"http://www.google.com/reader/api/0/subscription/list?output=json"},
+            function(data) {
+              var rcvdfeeds = data.subscriptions;
+              var count = rcvdfeeds.length;
+              for (var i=0;i<count;i++) {
+                var feed = new Feed(rcvdfeeds[i]);
+                all[rcvdfeeds[i].id]=feed;
+              }
+              createAll();
+            }
+          );
+        }
+      );
+    };
+
     function start() {
       updateReferences();
       if (referenceRoot.length==0) {
@@ -416,8 +451,7 @@ if (window==top) {
       if (newReferenceRed.length!=0)
         referenceRedClass = newReferenceRed.attr('class').split(' ').pop();
 
-      getAll();
-      //middle.parent().bind('DOMSubtreeModified',updateReferences);
+      getAllTagsAndFeeds();
       updater();
       updaterUnread();
       updateToken();
@@ -465,39 +499,6 @@ if (window==top) {
         }
       );
     }
-
-    function getAll() {
-      chrome.extension.sendRequest({
-        method:"GET",
-        dataType:'json',
-        url:"http://www.google.com/reader/api/0/tag/list?output=json"},
-        function(data) {
-          var rcvdtags = data.tags;
-          var count = rcvdtags.length;
-          for (var i=0;i<count;i++) {
-            var matches = /user\/.*\/label\/(.*)/.exec(rcvdtags[i].id);
-            if (matches!==null) {
-              var tag = new Tag(matches[0],matches[1]);
-              all[rcvdtags[i].id]=tag;
-            }
-          }
-          chrome.extension.sendRequest({
-            method:"GET",
-            dataType:'json',
-            url:"http://www.google.com/reader/api/0/subscription/list?output=json"},
-            function(data) {
-              var rcvdfeeds = data.subscriptions;
-              var count = rcvdfeeds.length;
-              for (var i=0;i<count;i++) {
-                var feed = new Feed(rcvdfeeds[i]);
-                all[rcvdfeeds[i].id]=feed;
-              }
-              createAll();
-            }
-          );
-        }
-      );
-    };
 
     function createAll() {
       for (var el in all) {
@@ -887,3 +888,4 @@ if (window==top) {
     }
   }
 }
+})(jQuery);

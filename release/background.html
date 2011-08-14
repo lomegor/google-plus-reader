@@ -37,7 +37,6 @@ function postUrlGetOk(url,tab) {
 
 chrome.extension.onRequest.addListener(
   function (request,sender,sendResponse) {
-    console.log(request);
     if (request.method=="status") {
       data = {};
       data.useGooglePlus=localStorage["useGooglePlus"]=="true"?true:false;
@@ -64,7 +63,6 @@ chrome.extension.onRequest.addListener(
           sendResponse(data);
         },
         error:function(jqXHR,text,error) {
-          console.log(jqXHR);
         }
         });
     } else if (request.method=="POST") {

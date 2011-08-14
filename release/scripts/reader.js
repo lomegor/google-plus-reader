@@ -67,7 +67,13 @@ function update() {
 
 //Get url of entry from a link to share on google+
 function getUrlEntry(el) {
-  return el.parent().parent().parent().find(".entry-title-link").attr('href');
+  var link = el.parent().parent().parent().find(".entry-title-link").attr('href');
+  var text = el.parent().parent().parent().find(".item-body");
+  if (link === undefined) link = text.attr('href');
+  if (link === undefined) link = text.attr('src');
+  if (link === undefined) link = text.find("a").attr('href');
+  if (link === undefined) link = text.find("img").attr('src');
+  return link;
 }
 
 //share event on google+
@@ -78,7 +84,9 @@ function share(evt,url) {
   //click on share button of black bar
   if (firstTime || !referenceIframe.is(':visible')) {
       firstTime=false;
-      referenceShare[0].dispatchEvent(evt.originalEvent);
+      var evt2 = document.createEvent("MouseEvents");
+      evt2.initMouseEvent("click","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
+      referenceShare[0].dispatchEvent(evt2);
   }
   //send request to background page to connect to iframe 
   //on share box

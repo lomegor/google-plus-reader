@@ -73,10 +73,7 @@ if (window==top) {
         that.DOM.css('background-image','none');
 
         var txt;
-        if (that.name.length>10)
-          txt = that.name.substr(0,10) + "...";
-        else
-          txt = that.name;
+        txt = that.name;
         that.DOMtagname = $("<div>");
         if (that.unreadCount>0) {
           txt += " ("+that.unreadCount+")";
@@ -163,10 +160,7 @@ if (window==top) {
 
 
         var txt;
-        if (that.name.length>10)
-          txt = that.name.substr(0,10) + "...";
-        else
-          txt = that.name;
+        txt = that.name;
         that.DOMtagname = $("<div>");
         if (that.unreadCount>0) {
           txt += " ("+that.unreadCount+")";
@@ -358,19 +352,19 @@ if (window==top) {
       var isStream=page.indexOf("stream");
       var isReader= $("#contentPane").find("*:contains('Google Reader -')").length;
       if (isStream>0) {
-        middle = $("#contentPane").find("div[aria-live|='polite']").first();
+        middle = $("#contentPane").find("div[aria-live|='polite'][tabindex!='0']").first();
         referenceContent = middle.first("div");
         referenceTitle1 = middle.parent().find("div").eq(0);
         referenceTitle2 = middle.parent().find("div").eq(1);
         referenceTitle3 = undefined;
       } else if (isSparksSub>0) {
-        middle = $("#contentPane").find("div[aria-live|='polite']").first();
+        middle = $("#contentPane").find("div[aria-live|='polite'][tabindex!='0']").first();
         referenceContent = middle.first("div");
         referenceTitle1 = middle.parent().parent().find("div").eq(0);
         referenceTitle2 = middle.parent().parent().children("div").eq(1);
         referenceTitle3 = undefined;
       } else if (isSparks>0) {
-        middle = $("#contentPane").find("div[aria-live|='polite']").first();
+        middle = $("#contentPane").find("div[aria-live|='polite'][tabindex!='0']").first();
         referenceContent = middle.first("div");
         referenceTitle1 = middle.parent().parent().find("div").eq(0);
         referenceTitle2 = middle.parent().parent().children("div").eq(1);
@@ -382,7 +376,7 @@ if (window==top) {
         referenceTitle2 = undefined;
         referenceTitle3 = undefined;
       } else {
-        middle = $("#contentPane").find("div[aria-live|='polite']").first();
+        middle = $("#contentPane").find("div[aria-live|='polite'][tabindex!='0']").first();
         referenceContent = middle.first("div");
         referenceTitle1 = middle.parent().find("div").eq(0);
         referenceTitle2 = middle.parent().find("div").eq(1);
@@ -399,15 +393,7 @@ if (window==top) {
       }
     };
 
-    function updater() {
-      setTimeout(function() {
-        update();
-        updater();
-      },5000);
-    }
-
     function getAllTagsAndFeeds() {
-      console.log("Sending request for tags...");
       chrome.extension.sendRequest({
         method:"GET",
         dataType:'json',
@@ -420,6 +406,14 @@ if (window==top) {
             if (matches!==null) {
               var tag = new Tag(matches[0],matches[1]);
               all[rcvdtags[i].id]=tag;
+            } else {
+              //add exception for following bloggers and other exceptions
+              //as I see fit
+              matches = /state\/com.blogger\/blogger-following/.exec(rcvdtags[i].id);
+              if (matches!==null) {
+                var tag = new Tag(rcvdtags[i].id,"Blogs I'm following");
+                all[rcvdtags[i].id]=tag;
+              }
             }
           }
           chrome.extension.sendRequest({
@@ -438,11 +432,9 @@ if (window==top) {
           );
         }
       );
-      console.log("Sent request");
     };
 
     function start() {
-      console.log("Starting Google+Reader");
       updateReferences();
       if (referenceRoot.length==0) {
         setTimeout(start,1000);
@@ -454,10 +446,7 @@ if (window==top) {
       if (newReferenceRed.length!=0)
         referenceRedClass = newReferenceRed.attr('class').split(' ').pop();
 
-      console.log("Getting tags");
       getAllTagsAndFeeds();
-      console.log("Got tags");
-      updater();
       updaterUnread();
       updateToken();
       updaterToken();
@@ -634,8 +623,22 @@ if (window==top) {
         //only show if entry is not read or read items should be shown
         if (!read || showRead) {
           var entry = $("<div>").addClass(referenceEntry);
-          if (entries[i].link.length!=undefined) {
+          if (entries[i].link!=undefined && entries[i].link.length!=undefined) {
             entries[i].link=entries[i].link[0];
+          } else if (entries[i].link===undefined) {
+            var text;
+            if (entries[i].summary!=undefined) {
+              text =$(entries[i].summary['#text']);
+            } else {
+              text =$(entries[i].content['#text']);
+            }
+            var link = text.attr('href');
+            if (link === undefined) link = text.attr('src');
+            if (link === undefined) link = text.find("a").attr('href');
+            if (link === undefined) link = text.find("img").attr('src');
+            entries[i].link={};
+            entries[i].link["@attributes"]={};
+            entries[i].link["@attributes"].href=link;
           }
           if (!read) {
             entry.addClass(referenceUnread);
@@ -811,7 +814,9 @@ if (window==top) {
       if (firstTime || !referenceIframe.is(':visible')) {
         var topScroll = $("body").scrollTop()
         firstTime=false;
-        referenceShareBox[0].dispatchEvent(evt.originalEvent);
+        var evt2 = document.createEvent("MouseEvents");
+        evt2.initMouseEvent("click","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
+        referenceShareBox[0].dispatchEvent(evt2);
         //absoluting box so it doesnt scroll to top
         referenceIframe.parent().css('position','fixed');
         referenceIframe.parent().css('background-color','white');
@@ -880,10 +885,10 @@ if (window==top) {
       var evt = document.createEvent("MouseEvents");
       evt.initMouseEvent("mousedown","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
       add[0].dispatchEvent(evt);
-      var evt = document.createEvent("MouseEvents");
+      evt = document.createEvent("MouseEvents");
       evt.initMouseEvent("mouseup","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
       add[0].dispatchEvent(evt);
-      var evt = document.createEvent("MouseEvents");
+      evt = document.createEvent("MouseEvents");
       evt.initMouseEvent("click","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
       add[0].dispatchEvent(evt);
 

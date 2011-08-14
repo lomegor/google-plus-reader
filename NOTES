@@ -1,14 +1,10 @@
-CHECK:
-* if continuation gives me only read
-
-BUGS:
-* Shortening titles
-
 FEATURES;
+* Shortening titles
+* Add the button on top or on the right as an option
 * Add instant share button
 * Fix references
 * j when in the end of document should mark as read
 * Add subtitle with name of feed
 * maybe add date?
-* marke all read
+* mark all read
 * On google reader add plus symbol to share

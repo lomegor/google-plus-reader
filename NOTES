@@ -1,3 +1,7 @@
+BUGS:
+* When clicking show read, the latest tag is shown. If in other item, none should be shown
+* Blogs Im following shown even if empty
+
 FEATURES;
 * Shortening titles
 * Add the button on top or on the right as an option

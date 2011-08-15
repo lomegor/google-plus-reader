@@ -393,6 +393,13 @@ if (window==top) {
       }
     };
 
+    function updater() {
+      setTimeout(function() {
+        update();
+        updater();
+      },10000);
+    };
+
     function getAllTagsAndFeeds() {
       chrome.extension.sendRequest({
         method:"GET",
@@ -450,6 +457,7 @@ if (window==top) {
       updaterUnread();
       updateToken();
       updaterToken();
+      updater();
     };
 
     function updateToken() {
@@ -741,16 +749,18 @@ if (window==top) {
     //when someone scrolls, mark everything to the top as read
     //unless is marked unread
     $(window).scroll(function(evt){
-      var scroll = $(this).scrollTop();
-      currentEntry=0;
-      var vieweditems = $('.'+referenceEntry).filter(function(){
-        return scroll>$(this).offset().top;
-      }).each(function() {
-        markReadAndFetch($(this));
-      });
-      evt.stopImmediatePropagation();
-      evt.stopPropagation();
-      evt.preventDefault();
+      if ($("."+referenceEntry).length>0) {
+        var scroll = $(this).scrollTop();
+        currentEntry=0;
+        var vieweditems = $('.'+referenceEntry).filter(function(){
+          return scroll>$(this).offset().top;
+        }).each(function() {
+          markReadAndFetch($(this));
+        });
+        evt.stopImmediatePropagation();
+        evt.stopPropagation();
+        evt.preventDefault();
+      }
     });
 
     //mark element as read if its not marked unread and fetch next batch

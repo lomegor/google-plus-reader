@@ -267,7 +267,7 @@ if (window==top) {
         chrome.extension.sendRequest({
           method:"GET",
           dataType:'xml',
-          url:"http://www.google.com/reader/atom/"+currentTag.id+xt},
+          url:"http://www.google.com/reader/atom/"+escape(currentTag.id)+xt},
           function(data) {
             //not going to fall into infinite loop, thanks
             referenceTitle1.parent().unbind("DOMNodeRemoved");
@@ -277,14 +277,20 @@ if (window==top) {
             //lets add our new found data!
             var list = show(data);
             var count = list.length;
-            for (var i=0;i<count;i++)
-              middle.append(list[i]);
-            //fix images
-            middle.find("img").css('max-width',middle.find(".summary").width());
-            referenceTitle1.parent().bind("DOMNodeRemoved",function() {
-              element.turnRedOff();
-              referenceTitle1.unbind("DOMNodeRemoved",this);
-            });
+            if (count==0) {
+              middle.append($("<div>").addClass("noitems").text("No new items"));
+            } else {
+              for (var i=0;i<count;i++) {
+                middle.append(list[i]);
+              }
+              currentEntry=0;
+              //fix images
+              middle.find("img").css('max-width',middle.find(".summary").width());
+              referenceTitle1.parent().bind("DOMNodeRemoved",function() {
+                element.turnRedOff();
+                referenceTitle1.unbind("DOMNodeRemoved",this);
+              });
+            }
           }
         );
       }
@@ -608,13 +614,14 @@ if (window==top) {
         continuation = undefined;
       var maxElements=20;
       var entries = data.feed.entry;
+      if (entries==undefined)
+        return [];
       var count = entries.length;
-      //when its only onew entry, greader give us the gift of changing everything
+      //when its only onew entry, greader gives us the gift of changing everything
       if (count==undefined) {
         entries=[entries];
         count=1;
       }
-      //var content = $("<div>").addClass(referenceContent.attr('class'));
       if (!showRead && currentTag.unreadCount>maxElements)
         maxElements=currentTag.unreadCount;
 
@@ -650,11 +657,11 @@ if (window==top) {
           }
           if (!read) {
             entry.addClass(referenceUnread);
-            entry.click((function(id,entry) {
+            entry.click((function(id,entry,tag) {
                 return function() {
-                  markRead(id,entry);
+                  markRead(id,entry,tag);
                 }
-            })(entries[i].id["#text"],entry));
+            })(entries[i].id["#text"],entry,currentTag));
           }
           var title = $("<a>")
             .attr('target','_blank')
@@ -690,11 +697,11 @@ if (window==top) {
             .attr("role","button")
             .attr("tabindex","0")
             .text("Mark Unread");
-          markButton.click((function(id,entry) {
+          markButton.click((function(id,entry,tag) {
             return function() {
-              markUnread(id,entry);
+              markUnread(id,entry,tag);
             }
-          })(entries[i].id["#text"],entry));
+          })(entries[i].id["#text"],entry,currentTag));
           entry.append(markButton);
           returnList.push(entry);
           currentMax++;
@@ -709,7 +716,7 @@ if (window==top) {
 
     //mark entry read... blah!
     //should add a way of removing keep unread if it has it
-    function markRead(id,entry) {
+    function markRead(id,entry,tag) {
       entry.unbind('click');
       chrome.extension.sendRequest({
         method:"POST",
@@ -717,17 +724,17 @@ if (window==top) {
         data:{"i":id,"a":"user/-/state/com.google/read","ac":"edit","T":token}},
         function(data) {
           if (data=="ERROR") {
-            entry.click(function(){markRead(id,entry)});
+            entry.click(function(){markRead(id,entry,tag)});
           } else {
             entry.removeClass(referenceUnread);
-            currentTag.updateCount(currentTag.unreadCount-1);
+            tag.updateCount(tag.unreadCount-1);
             update();
           }
         }
       );
     }
     //guess for yourself
-    function markUnread(id,entry) {
+    function markUnread(id,entry,tag) {
       chrome.extension.sendRequest({
         method:"POST",
         url:"http://www.google.com/reader/api/0/edit-tag?client=googleplusreader",
@@ -737,9 +744,9 @@ if (window==top) {
             entry.addClass(referenceUnread);
             entry.addClass(referenceMarkedUnread);
             entry.click(function() {
-              markRead(id,entry);
+              markRead(id,entry,tag);
             });
-            currentTag.updateCount(currentTag.unreadCount+1);
+            tag.updateCount(tagag.unreadCount+1);
             update();
           }
         }
@@ -796,10 +803,10 @@ if (window==top) {
             if (evt.type=="keyup") {
               if (evt.which==74) {
                 var lastEntry = $("."+referenceEntry).eq(currentEntry+1);
-                $("body").scrollTop(lastEntry.offset().top-10);
+                $("body").scrollTop(lastEntry.offset().top-30);
               } else if (currentEntry>=1) {
                 var lastEntry = $("."+referenceEntry).eq(currentEntry-1);
-                $("body").scrollTop(lastEntry.offset().top-10);
+                $("body").scrollTop(lastEntry.offset().top-30);
               }
             }
             evt.stopImmediatePropagation();

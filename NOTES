@@ -1,21 +1,15 @@
 BUGS:
 * Check if its necessary to add position absolute
 * Reader Plus
-* http://iserlohn-ingutenhaenden.de/t3-web/index.php?type=100
-* When clicking show read, the latest tag is shown. If in other item, none should be shown
-* Blogs Im following shown even if empty
+* Notifications stop working if I'm on noticiations and click on reader
 
 FEATURES;
 * starred
-* use JQuery from google
 * Order correctly as an option
-* Shortcut for sharing
 * Shortening titles
 * Add the button on top or on the right as an option
 * Add instant share button
 * Fix references
-* j when in the end of document should mark as read
 * Add subtitle with name of feed
 * maybe add date?
-* mark all read
 * On google reader add plus symbol to share

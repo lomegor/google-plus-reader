@@ -18,6 +18,13 @@
 .googleplusreader {
   margin-top:10px;
 }
+.markallread {
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+  float:right;
+}
 .entry {
   background-color: white;
   border-bottom: 1px solid transparent;
@@ -50,6 +57,12 @@
   outline: none;
   text-decoration: none;
   float:right;
+}
+.entry .summary img {
+  max-width:100%;
+}
+.entry.entryselected {
+  border:1px solid #D2D2D2;
 }
 .noitems {
   background-color: white;

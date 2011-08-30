@@ -25,7 +25,7 @@ if (window==top) {
   //CONSTANTS
   var TICK=10000;
   var TICK_REFERENCES=1;
-  var TICK_UNREAD=6;
+  var TICK_UNREAD=30;
   var TICK_TOKEN=60;
   //reference classes
   var CLASS_REFERENCE_READER = "googleplusreader";
@@ -259,14 +259,16 @@ if (window==top) {
       }
 
       this.updateCount = function(unread) {
-        that.unreadCount=unread;
-        var txt = that.name;
-        that.DOMtagname.css('font-weight','');
-        if (that.unreadCount>0) {
-          txt += " ("+that.unreadCount+")";
-          that.DOMtagname.css('font-weight','bold');
+        if (unread!=that.unreadCount) {
+          that.unreadCount=unread;
+          var txt = that.name;
+          that.DOMtagname.css('font-weight','');
+          if (that.unreadCount>0) {
+            txt += " ("+that.unreadCount+")";
+            that.DOMtagname.css('font-weight','bold');
+          }
+          that.DOMtagname.text(txt);
         }
-        that.DOMtagname.text(txt);
       }
 
       this.isRoot = function() {
@@ -376,14 +378,16 @@ if (window==top) {
       }
 
       this.updateCount = function(unread) {
-        that.unreadCount=unread;
-        var txt = that.name;
-        that.DOMtagname.css('font-weight','');
-        if (that.unreadCount>0) {
-          txt += " ("+that.unreadCount+")";
-          that.DOMtagname.css('font-weight','bold');
+        if (unread!=that.unreadCount) {
+          that.unreadCount=unread;
+          var txt = that.name;
+          that.DOMtagname.css('font-weight','');
+          if (that.unreadCount>0) {
+            txt += " ("+that.unreadCount+")";
+            that.DOMtagname.css('font-weight','bold');
+          }
+          that.DOMtagname.text(txt);
         }
-        that.DOMtagname.text(txt);
       }
 
       this.select = function(){

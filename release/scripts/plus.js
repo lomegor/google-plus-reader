@@ -161,9 +161,6 @@ if (window==top) {
       function(data) {
         var rcvdunread = data.unreadcounts;
         var count = rcvdunread.length;
-        for (var el in all) {
-          all[el].updateCount(0);
-        }
         for (var i=0; i<count; i++) {
           if (all[rcvdunread[i].id]!=undefined) {
             all[rcvdunread[i].id].updateCount(rcvdunread[i].count);

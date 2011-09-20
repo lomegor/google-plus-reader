@@ -1,6 +1,6 @@
 {
   "name": "RSS Share for Google Plus™ and Google Reader™",
-  "version": "0.9.9.2",
+  "version": "0.9.9.3",
   "description": "Google+™ and Google Reader™ Integration. 'Share on Google+' button on Google Reader.  Google Reader in Google Plus.",
   "icons": {
       "128":"icon.png",

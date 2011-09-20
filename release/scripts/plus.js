@@ -95,8 +95,8 @@ if (window==top) {
 
   function updateReferences() {
     referenceRoot = $("a[href^='/stream/']").first();
-    referenceTitle = $("a[href^='/welcome']").first();
-    referenceBreak = referenceTitle.prev();
+    referenceTitle = $("#content a[href^='/stream']").first();
+    //referenceBreak = referenceTitle.prev();
     referenceMenu = $('#content a[href|="/notifications/all"]');
 
 
@@ -520,7 +520,7 @@ if (window==top) {
       googleReaderMenu = $("<div>").addClass(CLASS_REFERENCE_READER);
 
       //separator used for nice touch
-      var separator = '<div class="'+referenceBreak.attr('class')+'"></div>';
+      //var separator = '<div class="'+referenceBreak.attr('class')+'"></div>';
 
       //no red class please!!
       var classes = referenceTitle.attr('class').split(' ');
@@ -531,7 +531,7 @@ if (window==top) {
       var title = '<div id="'+ID_REFERENCE_READER_MENU_TITLE+'" class="'+classes.join(' ')+'">Reader</div>';
 
       //append ALL the things!
-      googleReaderMenu.append(separator);
+      //googleReaderMenu.append(separator);
       googleReaderMenu.append(title);
       googleReaderMenu.append(elementList);
 

@@ -623,8 +623,11 @@ if (window==top) {
 
       //if we are not showing read items and the current unread count is 0
       //not requesting anything
-      if (!showRead && currentTag.unreadCount==0) {
-        referenceMiddle.append('<div class="noitems">No new items</div>');
+      if (currentTag.unreadCount==0) {
+        if (!show.read) {
+          referenceMiddle.append('<div class="noitems">No new items</div>');
+        }
+        currentTag.updateCount(0);
       } else {
         //add loading text and request feeds
         referenceMiddle.append('<div class="noitems">Loading...</div>');
@@ -858,6 +861,14 @@ if (window==top) {
         lastEntry.addClass(CLASS_REFERENCE_ENTRY_SELECTED);
       }
     });
+
+    
+  $("body").bind("DOMNodeInserted",function(evt) {
+    if (evt.relatedNode.nodeName=="BODY" && evt.srcElement.id && evt.srcElement.id.substr(0,7) == 'update-') {
+      evt.stopPropagation();
+      $(evt.srcElement).remove();
+    }
+  });
 
     //mark element as read if its not marked unread and fetch next batch
     //of items if at referenceMiddle of content

@@ -39,6 +39,11 @@ var referenceSpan = $("<span>")
         evt.stopImmediatePropagation();
       });
 
+$(document).bind('keydown', 'shift+r', function(evt) {
+  var span = $('#current-entry .entry-actions .googleplusreader');
+  share(evt, getUrlEntry(span));
+  evt.stopImmediatePropagation();
+});
 
 //is this the first time we open the share box?
 var firstTime = true;

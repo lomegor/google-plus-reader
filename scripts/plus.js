@@ -41,6 +41,8 @@ if (window==top) {
   var CLASS_REFERENCE_OPEN_BUTTON = "open";
   var CLASS_REFERENCE_SUBTREE = "subtag";
   var CLASS_REFERENCE_TAGNAME = "tagname";
+  var CLASS_REFERENCE_TITLE = "feedtitle";
+  var CLASS_REFERENCE_FEEDS = "feedsContent";
   var COLOR_REFERENCE_RED = "rgb(221, 75, 57)";
   var ID_REFERENCE_READER_MENU_TITLE = "googleplusreadertitle";
   var SELECTOR_CLASS_REFERENCE_ENTRY = 'div.'+CLASS_REFERENCE_ENTRY;
@@ -59,6 +61,8 @@ if (window==top) {
   var googleReaderMenuParent;
   //reference to the "Show Read" button
   var showButton;
+  //reference to the feeds part
+  var referenceMiddle;
 
   //current tag being shown
   var currentTag;
@@ -78,10 +82,7 @@ if (window==top) {
   var referenceBreak;
   var referenceMenu;
   var referenceRedClass;
-  var referenceMiddle;
-  var referenceTitle1;
-  var referenceTitle2;
-  var referenceTitle3;
+  var referenceContent;
 
   //save unread count before modifying it
   var currentUnreadCount;
@@ -98,45 +99,19 @@ if (window==top) {
     referenceTitle = $("#content a[href^='/stream']").first();
     //referenceBreak = referenceTitle.prev();
     referenceMenu = $('#content a[href|="/notifications/all"]');
-
-
+    referenceContent = $("#contentPane");
     var page = window.location.pathname;
+        var page = window.location.pathname;
     var isSparks=page.indexOf("sparks");
     var isSparksSub = page.indexOf("sparks/");
     var isWelcome=page.indexOf("welcome");
     var isNotifications=page.indexOf("notifications");
     var isStream=page.indexOf("stream");
     var isReader= $("#contentPane").find("*:contains('Google Reader -')").length;
-    if (isStream>0) {
-      referenceMiddle = $("#contentPane").find("div[aria-live|='polite'][tabindex!='0']").first();
-      referenceTitle1 = referenceMiddle.parent().find("div").eq(0);
-      referenceTitle2 = referenceMiddle.parent().find("div").eq(1);
-      referenceTitle3 = undefined;
-    } else if (isSparksSub>0) {
-      referenceMiddle = $("#contentPane").find("div[aria-live|='polite'][tabindex!='0']").first();
-      referenceTitle1 = referenceMiddle.parent().parent().find("div").eq(0);
-      referenceTitle2 = referenceMiddle.parent().parent().children("div").eq(1);
-      referenceTitle3 = undefined;
-    } else if (isSparks>0) {
-      referenceMiddle = $("#contentPane").find("div[aria-live|='polite'][tabindex!='0']").first();
-      referenceTitle1 = referenceMiddle.parent().parent().find("div").eq(0);
-      referenceTitle2 = referenceMiddle.parent().parent().children("div").eq(1);
-      referenceTitle3 = referenceMiddle.parent().parent().children("div").eq(2);
-    } else if (isNotifications>0) {
-      referenceMiddle = $("#contentPane>div>div").children("div").eq(1);
-      referenceTitle1 = referenceMiddle.parent().find("div").eq(0);
-      referenceTitle2 = undefined;
-      referenceTitle3 = undefined;
-    } else {
-      referenceMiddle = $("#contentPane").find("div[aria-live|='polite'][tabindex!='0']").first();
-      referenceTitle1 = referenceMiddle.parent().find("div").eq(0);
-      referenceTitle2 = referenceMiddle.parent().find("div").eq(1);
-      referenceTitle3 = undefined;
-    }
   }
 
   function update() {
-    if (googleReaderMenu!=undefined) {
+    if (googleReaderMenu!=undefined && googleReaderMenuParent.find("."+CLASS_REFERENCE_READER).length==0) {
       googleReaderMenuParent.unbind('DOMSubtreeModified',update);
       updateReferences();
       googleReaderMenu.insertAfter(referenceMenu);
@@ -581,45 +556,43 @@ if (window==top) {
       updateReferences(); //just in case
       //remove red from all items
       $("."+referenceRedClass).removeClass(referenceRedClass);
+      if (currentTag)
+        currentTag.unselect();
       currentTag = element; //set current tag
       currentUnreadCount = element.unreadCount;
 
       currentMax=0;
 
       //get top before modifying
-      var titleTop = referenceTitle1.offset().top;
+      var titleTop = referenceContent.offset().top;
 
-      //add this to referenceMiddle if it doesnt have it
-      referenceMiddle.attr('aria-live','polite');
-      referenceMiddle.empty();
-      //remove any annoying brother
-      referenceMiddle.siblings().each(function() {
-        if (this!==referenceTitle1[0]) {
-          $(this).remove();
-        }
-      });
+      referenceContent.unbind("DOMNodeInserted");
+      referenceContent.empty();
 
       //Set new title
       var markAllReadButton = $('<a>')
         .addClass(CLASS_REFERENCE_MARK_ALL_READ_BUTTON)
         .text('Mark All Read');
       markAllReadButton.click(function(){markAllAsRead(currentTag)});
-      referenceTitle1.empty().text("Google Reader - " + currentTag.name).append(markAllReadButton);
-      //remove titles that we are not using
-      if (referenceTitle2!=undefined)
-        referenceTitle2.removeClass().empty();
-      if (referenceTitle3!=undefined)
-        referenceTitle3.empty();
-
+      var title = $("<div>").addClass(CLASS_REFERENCE_TITLE).text("Google Reader - " + currentTag.name).append(markAllReadButton);
+      referenceMiddle = $("<div>").addClass(CLASS_REFERENCE_FEEDS).append(title);
+      referenceMiddle.css('width',referenceContent.css('width'));
+      referenceMiddle.css('height',referenceContent.css('height'));
+      referenceContent.append(referenceMiddle);
 
       element.select();
 
 
-      //if someone touches our DOM, we will remove our red
-      referenceTitle1.parent().bind("DOMNodeRemoved",function() {
-        element.unselect();
-        referenceTitle1.unbind("DOMNodeRemoved",this);
+
+      //if someone touches the title DOM, we will remove our red
+      referenceContent.bind("DOMNodeInserted",function(evt) {
+        if (evt.relatedNode.id && evt.relatedNode.id=="contentPane" && (evt.srcElement.className || evt.srcElement.className != CLASS_REFERENCE_FEEDS)) {
+          referenceMiddle.remove();
+          element.unselect();
+          referenceContent.unbind("DOMNodeInserted",this);
+        }
       });
+
 
       //if we are not showing read items and the current unread count is 0
       //not requesting anything
@@ -641,11 +614,8 @@ if (window==top) {
           dataType:'xml',
           url:"http://www.google.com/reader/atom/"+escape(currentTag.id)+xt},
           function(data) {
-            //not going to fall into infinite loop, thanks
-            referenceTitle1.parent().unbind("DOMNodeRemoved");
-
             //remove loading
-            referenceMiddle.empty();
+            referenceMiddle.find(".noitems").remove();
             //lets add our new found data!
             var list = show(data);
             if (list=="") {
@@ -654,10 +624,6 @@ if (window==top) {
               referenceMiddle.append(list);
               currentEntry=0;
               $(SELECTOR_CLASS_REFERENCE_ENTRY).eq(0).addClass(CLASS_REFERENCE_ENTRY_SELECTED);
-              referenceTitle1.parent().bind("DOMNodeRemoved",function() {
-                element.unselect();
-                referenceTitle1.unbind("DOMNodeRemoved",this);
-              });
             }
           }
         );
@@ -863,12 +829,6 @@ if (window==top) {
     });
 
     
-  $("body").bind("DOMNodeInserted",function(evt) {
-    if (evt.relatedNode.nodeName=="BODY" && evt.srcElement.id && evt.srcElement.id.substr(0,7) == 'update-') {
-      evt.stopPropagation();
-      $(evt.srcElement).remove();
-    }
-  });
 
     //mark element as read if its not marked unread and fetch next batch
     //of items if at referenceMiddle of content

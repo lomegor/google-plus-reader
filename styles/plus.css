@@ -25,6 +25,23 @@
   text-decoration: none;
   float:right;
 }
+.feedtitle {
+	font: 18px arial,sans-serif;
+	color: #333;
+	white-space: nowrap;
+	line-height: 22px;
+	padding-left: 21px;
+	padding-right: 21px;
+	padding-top: 16px;
+	padding-bottom: 16px;
+}
+.feedsContent {
+	background-color:white;
+	height:100%;
+	position:absolute;
+	top:0;
+	z-index:200;
+}
 .entry {
   background-color: white;
   border-bottom: 1px solid transparent;

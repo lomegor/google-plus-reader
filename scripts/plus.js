@@ -21,6 +21,10 @@
  **/
 (function($) {
 
+function debug(text) {
+  console.log("[+] RSS Share - "+text);
+}
+
 if (window==top) {
   //CONSTANTS
   var TICK=10000;
@@ -385,6 +389,7 @@ if (window==top) {
         setTimeout(start,500);
         return;
       }
+      debug("Starting...");
       addLiveFunctions();
       var newReferenceRed = referenceMenu.parent().find("*").filter(function() {
         return $(this).css('color')==COLOR_REFERENCE_RED;
@@ -430,6 +435,7 @@ if (window==top) {
 
 
     function getAllTagsAndFeeds() {
+      debug("Getting tags...");
       chrome.extension.sendRequest({
         method:"GET",
         dataType:'json',
@@ -452,6 +458,7 @@ if (window==top) {
               }
             }
           }
+          debug("Tags Done. Getting feeds...");
           //get feeds
           chrome.extension.sendRequest({
             method:"GET",
@@ -464,6 +471,7 @@ if (window==top) {
                 var feed = new Feed(rcvdfeeds[i]);
                 all[rcvdfeeds[i].id]=feed;
               }
+              debug("Feeds Done");
               createAll();
             }
           );
@@ -481,6 +489,7 @@ if (window==top) {
     }
 
     function writeAll() {
+      debug("Writing Menu");
       var elementList = "<div>";
       for (var el in all) {
         if (all[el].isRoot() && all[el].hasElements()) {
@@ -520,7 +529,9 @@ if (window==top) {
         showButton.click(function(){hideRead()});
       }
       googleReaderMenu.append(showButton);
+      debug("Created");
       write();
+      debug("Written");
       updateUnreadCount();
       //add functions
       $("div#"+ID_REFERENCE_READER_MENU_TITLE).click(function() {updateUnreadCount()});
@@ -552,6 +563,7 @@ if (window==top) {
     }
 
     function showItems(id) {
+      debug("Showing items");
       var element = all[id];
       updateReferences(); //just in case
       //remove red from all items
@@ -593,15 +605,16 @@ if (window==top) {
         }
       });
 
+      debug("Requesting...");
 
       //if we are not showing read items and the current unread count is 0
       //not requesting anything
-      if (currentTag.unreadCount==0) {
-        if (!show.read) {
-          referenceMiddle.append('<div class="noitems">No new items</div>');
-        }
+      if (!showRead && currentTag.unreadCount==0) {
+        referenceMiddle.append('<div class="noitems">No new items</div>');
         currentTag.updateCount(0);
       } else {
+        if (currentTag.unreadCount==0)
+          currentTag.updateCount(0);
         //add loading text and request feeds
         referenceMiddle.append('<div class="noitems">Loading...</div>');
         //if not showing read, not requestin read
@@ -614,6 +627,7 @@ if (window==top) {
           dataType:'xml',
           url:"http://www.google.com/reader/atom/"+escape(currentTag.id)+xt},
           function(data) {
+            debug("Data received");
             //remove loading
             referenceMiddle.find(".noitems").remove();
             //lets add our new found data!
@@ -625,6 +639,7 @@ if (window==top) {
               currentEntry=0;
               $(SELECTOR_CLASS_REFERENCE_ENTRY).eq(0).addClass(CLASS_REFERENCE_ENTRY_SELECTED);
             }
+            debug("Data added");
           }
         );
       }
@@ -634,6 +649,7 @@ if (window==top) {
     }
 
     function show(data) {
+      debug("Parsing items");
       var returnList = "";
       //save our precious continuation key for updating content
       if (data.feed["gr:continuation"]!=undefined)
@@ -645,7 +661,7 @@ if (window==top) {
       if (entries==undefined)
         return [];
       var count = entries.length;
-      //when its only onew entry, greader gives us the gift of changing everything
+      //when its only one entry, greader gives us the gift of changing everything
       if (count==undefined) {
         entries=[entries];
         count=1;
@@ -653,11 +669,13 @@ if (window==top) {
       if (!showRead && currentTag.unreadCount>maxElements)
         maxElements=currentTag.unreadCount;
 
+      debug("Iterating entries");
       //ok, iterate on entries
       //not saving them because they change too much, not worth it
       for (var i=0; i<count; i++) {
         var count2 = entries[i].category.length;
         var read=false;
+        debug("Iterating Categories");
         for (var j=0;j<count2 && !read;j++) {
           if (entries[i].category[j]["@attributes"].label==="read")
             read=true;
@@ -665,6 +683,7 @@ if (window==top) {
 
         //only show if entry is not read or read items should be shown
         if (!read || showRead) {
+          debug("Creating entry");
           //get attributes
           var text_title=entries[i].title["#text"];
           var text_url="";
@@ -721,6 +740,7 @@ if (window==top) {
           currentMax++;
         }
       }
+      debug("Finished parsing");
       //WARNING: Do not return notReturnList!!!!
       return returnList;
     }

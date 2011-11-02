@@ -99,10 +99,10 @@ if (window==top) {
   var tick=0;
 
   function updateReferences() {
-    referenceRoot = $("a[href^='/stream/']").first();
-    referenceTitle = $("#content a[href^='/stream']").first();
+    referenceRoot = $("#content a[href*='/stream/']").first();
+    referenceTitle = $("#content a[href$='/stream']").first();
     //referenceBreak = referenceTitle.prev();
-    referenceMenu = $('#content a[href|="/notifications/all"]');
+    referenceMenu = $('#content a[href$="/notifications/all"]');
     referenceContent = $("#contentPane");
     var page = window.location.pathname;
         var page = window.location.pathname;
@@ -611,10 +611,7 @@ if (window==top) {
       //not requesting anything
       if (!showRead && currentTag.unreadCount==0) {
         referenceMiddle.append('<div class="noitems">No new items</div>');
-        currentTag.updateCount(0);
       } else {
-        if (currentTag.unreadCount==0)
-          currentTag.updateCount(0);
         //add loading text and request feeds
         referenceMiddle.append('<div class="noitems">Loading...</div>');
         //if not showing read, not requestin read

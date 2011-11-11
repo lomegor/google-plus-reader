@@ -15,9 +15,6 @@
  You should have received a copy of the GNU General Public License
  along with Google+Reader.  If not, see <http://www.gnu.org/licenses/>.
 **/
-.googleplusreader {
-  margin-top:10px;
-}
 .markallread {
   font-size: 13px;
   cursor: pointer;
@@ -110,4 +107,28 @@
 }
 .subtag {
   margin-left:10px;
+}
+#readerIcon {
+	background: whiteSmoke;
+	border: 1px solid #D2D2D2;
+	border-right-width: 0;
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+	box-shadow: 0 0 5px rgba(0,0,0,0.1);
+	height: 29px;
+	width: 25px;
+	padding: 6px;
+	z-index: auto;
+	float:left;
+}
+#readerMenuIcon {
+	position: fixed;
+	top: 150px;
+	right: -168px;
+	width: 207px;
+}
+.googleplusreader {
+	margin-top:10px;
+  width:168px;
+  float:left;
 }

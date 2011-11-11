@@ -49,6 +49,8 @@ if (window==top) {
   var CLASS_REFERENCE_FEEDS = "feedsContent";
   var COLOR_REFERENCE_RED = "rgb(221, 75, 57)";
   var ID_REFERENCE_READER_MENU_TITLE = "googleplusreadertitle";
+  var ID_REFERENCE_ICON = "readerIcon";
+  var ID_REFERENCE_BELOW_YOUTUBE = "readerMenuIcon";
   var SELECTOR_CLASS_REFERENCE_ENTRY = 'div.'+CLASS_REFERENCE_ENTRY;
   var SELECTOR_CLASS_REFERENCE_TAGNAME = 'div.'+CLASS_REFERENCE_TAGNAME;
   var SELECTOR_CLASS_REFERENCE_OPEN_BUTTON = 'span.'+CLASS_REFERENCE_OPEN_BUTTON;
@@ -80,7 +82,8 @@ if (window==top) {
   var token;
 
 
-  //references to copy classes
+  //references to google+ objects
+  var referenceIconParent
   var referenceRoot;
   var referenceTitle;
   var referenceBreak;
@@ -95,11 +98,13 @@ if (window==top) {
   var fetching=false;
   //should we show read items?
   var showRead=false;
+  var belowCircles=false;
 
   var tick=0;
 
   function updateReferences() {
     referenceRoot = $("#content a[href*='/stream/']").first();
+    referenceIconParent = referenceRoot.parent().parent().parent().parent();
     referenceTitle = $("#content a[href$='/stream']").first();
     //referenceBreak = referenceTitle.prev();
     referenceMenu = $('#content a[href$="/notifications/all"]');
@@ -115,7 +120,7 @@ if (window==top) {
   }
 
   function update() {
-    if (googleReaderMenu!=undefined && googleReaderMenuParent.find("."+CLASS_REFERENCE_READER).length==0) {
+    if (!belowCircles && googleReaderMenu!=undefined && googleReaderMenuParent.find("."+CLASS_REFERENCE_READER).length==0) {
       googleReaderMenuParent.unbind('DOMSubtreeModified',update);
       updateReferences();
       googleReaderMenu.insertAfter(referenceMenu);
@@ -172,6 +177,7 @@ if (window==top) {
     method:"status"},
     function(data) {
       showRead=data.showRead;
+      belowCircles=data.belowCircles
       if (data.useGooglePlus) {
         addGoogleReader();
       }
@@ -385,8 +391,8 @@ if (window==top) {
 
     function start() {
       updateReferences();
-      if (referenceRoot.length==0) {
-        setTimeout(start,500);
+      if ((belowCircles && referenceRoot.length==0) || (!belowCircles && referenceIconParent.length==0)) {
+        setTimeout(start,1000);
         return;
       }
       debug("Starting...");
@@ -542,7 +548,34 @@ if (window==top) {
 
     function write() {
       //insert in menu
-      googleReaderMenu.insertAfter(referenceMenu);
+      if (!belowCircles) {
+        var icon = $("<div>")
+          .attr('id',ID_REFERENCE_ICON)
+          .css('background-image','url('+chrome.extension.getURL("images/icon.png")+')')
+          .css('background-size','100%')
+          .css('background-repeat','no-repeat');
+        var menuParent = $("<div>")
+          .attr('id',ID_REFERENCE_BELOW_YOUTUBE);
+        menuParent.hover(function() {
+          $(this).stop().animate({'right':0});
+        },function() {
+          $(this).stop().animate({'right':'-168px'});
+        });
+        menuParent.append(icon);
+        googleReaderMenu.css('margin-top','0');
+        googleReaderMenu.css('background-color','#f5f5f5');
+        googleReaderMenu.css('border','1px solid #D2D2D2');
+        googleReaderMenu.css('border-right-width','0');
+        googleReaderMenu.css('border-top-left-radius','2px');
+        googleReaderMenu.css('border-bottom-left-radius','2px');
+	      googleReaderMenu.css('box-shadow','0 0 5px rgba(0,0,0,0.1)');
+	      googleReaderMenu.css('max-height','300px');
+	      googleReaderMenu.css('overflow','auto');
+        menuParent.append(googleReaderMenu);
+        referenceIconParent.append(menuParent);
+      } else {
+        googleReaderMenu.insertAfter(referenceMenu);
+      }
       //set parent for reference now that we've inserted it
       googleReaderMenuParent=googleReaderMenu.parent();
       //bind update if anything changes
@@ -642,7 +675,7 @@ if (window==top) {
       }
       //scroll to the top <==> we are not at the top already!
       if (titleTop<$("body").scrollTop())
-        $("body").scrollTop(titleTop-10);
+        $("body").scrollTop(titleTop-20);
     }
 
     function show(data) {

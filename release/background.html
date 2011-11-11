@@ -42,6 +42,7 @@ chrome.extension.onRequest.addListener(
       data = {};
       data.useGooglePlus=localStorage["useGooglePlus"]=="true"?true:false;
       data.showRead=localStorage["showRead"]=="true"?true:false;
+      data.belowCircles=localStorage["readerBelowCircles"]=="true"?true:false;
       sendResponse(data);
     } else if (request.method=="changeShowRead"){
       if (localStorage["showRead"]=="true")
@@ -125,6 +126,8 @@ function firstTime() {
         localStorage["useGooglePlus"] = "true";
       if (localStorage["showRead"]==undefined)
         localStorage["showRead"] = "true";
+			if (localStorage["readerBelowCircles"]==undefined)
+				localStorage["readerBelowCircles"];
 };
 firstTime();
 </script>

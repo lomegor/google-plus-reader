@@ -919,10 +919,11 @@ if (window==top) {
           && evt.target==$("body")[0]
           && (evt.which==74 || evt.which==75 || evt.which==83)) {
         if (evt.type=="keyup") {
+          var toppix = 70;
           if (evt.which==74) {
             var lastEntry = $(SELECTOR_CLASS_REFERENCE_ENTRY).eq(currentEntry+1);
-            $("body").scrollTop(lastEntry.offset().top-30);
-            if (lastEntry.offset().top-30>$("body").scrollTop()) {
+            $("body").scrollTop(lastEntry.offset().top-toppix);
+            if (lastEntry.offset().top-toppix>$("body").scrollTop()) {
               $('.'+CLASS_REFERENCE_ENTRY).removeClass(CLASS_REFERENCE_ENTRY_SELECTED);
               lastEntry.addClass(CLASS_REFERENCE_ENTRY_SELECTED);
               currentEntry++;
@@ -932,8 +933,8 @@ if (window==top) {
             }
           } else if (evt.which==75 && currentEntry>=1) {
             var lastEntry = $(SELECTOR_CLASS_REFERENCE_ENTRY).eq(currentEntry-1);
-            $("body").scrollTop(lastEntry.offset().top-30);
-            if (lastEntry.offset().top-30>$("body").scrollTop()) {
+            $("body").scrollTop(lastEntry.offset().top-toppix);
+            if (lastEntry.offset().top-toppix>$("body").scrollTop()) {
               $('.'+CLASS_REFERENCE_ENTRY).removeClass(CLASS_REFERENCE_ENTRY_SELECTED);
               lastEntry.addClass(CLASS_REFERENCE_ENTRY_SELECTED);
               currentEntry--;

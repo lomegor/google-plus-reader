@@ -675,7 +675,7 @@ if (window==top) {
       }
       //scroll to the top <==> we are not at the top already!
       if (titleTop<$("body").scrollTop())
-        $("body").scrollTop(titleTop-20);
+        $("body").scrollTop(titleTop-70);
     }
 
     function show(data) {

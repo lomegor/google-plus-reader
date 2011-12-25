@@ -1,15 +1,6 @@
-BUGS:
-* Check if its necessary to add position absolute
-* Reader Plus
-* Notifications stop working if I'm on noticiations and click on reader
-
-FEATURES;
+FEATURES:
 * starred
 * Order correctly as an option
 * Shortening titles
-* Add the button on top or on the right as an option
 * Add instant share button
 * Fix references
-* Add subtitle with name of feed
-* maybe add date?
-* On google reader add plus symbol to share

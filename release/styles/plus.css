@@ -63,8 +63,19 @@
   font-size: 15px;
   line-height: 1.4;
   font-weight:bold;
-  margin-bottom: 20px;
   display:inline-block;
+}
+.entry .entryFeedMeta {
+	width:100%;
+	font-size:0.9em;
+	color:#36c;
+	margin-bottom:40px;
+}
+.entry .entryFeedTitle {
+	float:left;
+}
+.entry .entryFeedDate {
+	float:right;
 }
 .entry .share {
   cursor: pointer;
@@ -108,6 +119,9 @@
 .subtag {
   margin-left:10px;
 }
+.selectedTag {
+	color: rgb(221,75,57);
+}
 #readerIcon {
 	background: whiteSmoke;
 	border: 1px solid #D2D2D2;
@@ -118,7 +132,6 @@
 	height: 29px;
 	width: 25px;
 	padding: 6px;
-	z-index: auto;
 	float:left;
 }
 #readerMenuIcon {
@@ -126,6 +139,7 @@
 	top: 150px;
 	right: -168px;
 	width: 207px;
+	z-index: 900;
 }
 .googleplusreader {
 	margin-top:10px;

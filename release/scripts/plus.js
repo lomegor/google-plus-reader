@@ -47,6 +47,10 @@ if (window==top) {
   var CLASS_REFERENCE_TAGNAME = "tagname";
   var CLASS_REFERENCE_TITLE = "feedtitle";
   var CLASS_REFERENCE_FEEDS = "feedsContent";
+  var CLASS_REFERENCE_RED_CLASS = "selectedTag";
+  var CLASS_REFERENCE_ENTRY_FEED_TITLE = "entryFeedTitle";
+  var CLASS_REFERENCE_ENTRY_FEED_DATE = "entryFeedDate";
+  var CLASS_REFERENCE_ENTRY_FEED_META = "entryFeedMeta";
   var COLOR_REFERENCE_RED = "rgb(221, 75, 57)";
   var ID_REFERENCE_READER_MENU_TITLE = "googleplusreadertitle";
   var ID_REFERENCE_ICON = "readerIcon";
@@ -88,7 +92,6 @@ if (window==top) {
   var referenceTitle;
   var referenceBreak;
   var referenceMenu;
-  var referenceRedClass;
   var referenceContent;
 
   //save unread count before modifying it
@@ -261,10 +264,10 @@ if (window==top) {
       }
       this.select = function(){
         //red ALL the things!
-        that.DOMtagname.addClass(referenceRedClass);
+        that.DOMtagname.addClass(CLASS_REFERENCE_RED_CLASS);
       }
       this.unselect = function(){
-        that.DOMtagname.removeClass(referenceRedClass);
+        that.DOMtagname.removeClass(CLASS_REFERENCE_RED_CLASS);
       }
       this.decreaseCount = function() {
         that.updateCount(that.unreadCount-1);
@@ -375,11 +378,11 @@ if (window==top) {
       this.select = function(){
         //red ALL the things!
         that.DOMopen.css('color',COLOR_REFERENCE_RED);
-        that.DOMmain.addClass(referenceRedClass);
+        that.DOMtagname.addClass(CLASS_REFERENCE_RED_CLASS);
       }
       this.unselect = function() {
         that.DOMopen.css('color','#CCC');
-        that.DOMmain.removeClass(referenceRedClass);
+        that.DOMtagname.removeClass(CLASS_REFERENCE_RED_CLASS);
       }
       this.decreaseCount = function() {
         that.updateCount(that.unreadCount-1);
@@ -397,11 +400,6 @@ if (window==top) {
       }
       debug("Starting...");
       addLiveFunctions();
-      var newReferenceRed = referenceMenu.parent().find("*").filter(function() {
-        return $(this).css('color')==COLOR_REFERENCE_RED;
-      });
-      if (newReferenceRed.length!=0)
-        referenceRedClass = newReferenceRed.attr('class').split(' ').pop();
 
       getAllTagsAndFeeds();
       updateToken();
@@ -561,6 +559,7 @@ if (window==top) {
         },function() {
           $(this).stop().animate({'right':'-168px'});
         });
+        menuParent.css('top',$("#content div div").eq(3).offset().top+70);
         menuParent.append(icon);
         googleReaderMenu.css('margin-top','0');
         googleReaderMenu.css('background-color','#f5f5f5');
@@ -600,7 +599,7 @@ if (window==top) {
       var element = all[id];
       updateReferences(); //just in case
       //remove red from all items
-      $("."+referenceRedClass).removeClass(referenceRedClass);
+      $("."+CLASS_REFERENCE_RED_CLASS).removeClass(CLASS_REFERENCE_RED_CLASS);
       if (currentTag)
         currentTag.unselect();
       currentTag = element; //set current tag
@@ -657,6 +656,7 @@ if (window==top) {
           dataType:'xml',
           url:"http://www.google.com/reader/atom/"+escape(currentTag.id)+xt},
           function(data) {
+            console.log(data);
             debug("Data received");
             //remove loading
             referenceMiddle.find(".noitems").remove();
@@ -734,6 +734,14 @@ if (window==top) {
           } else {
             text_link=entries[i].link["@attributes"].href;
           }
+          var text_meta = "";
+          if (entries[i].source !== undefined && entries[i].source.title !== undefined) {
+            text_meta = "<div class=\""+CLASS_REFERENCE_ENTRY_FEED_TITLE+"\">"+entries[i].source.title["#text"]+" </div>";
+          }
+          if (entries[i].published !== undefined) {
+            text_meta += "<div class=\""+CLASS_REFERENCE_ENTRY_FEED_DATE+"\">"+entries[i].published["#text"].replace("T"," ").replace("Z","")+"</div>";
+          }
+          text_meta = "<div class=\""+CLASS_REFERENCE_ENTRY_FEED_META+"\">"+text_meta+"</div>";
           var text_summary="";
           if (entries[i].summary!=undefined) {
             text_summary=entries[i].summary["#text"];
@@ -751,6 +759,7 @@ if (window==top) {
           title+=' href="'+text_link+'">';
           title+=text_title+"</a>";
           entry+=title;
+          entry+=text_meta;
 
           var summary = '<div class="'+CLASS_REFERENCE_SUMMARY+'" style="overflow:auto">';
           summary+=text_summary+'</div>';

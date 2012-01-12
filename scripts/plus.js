@@ -106,7 +106,7 @@ if (window==top) {
   var tick=0;
 
   function updateReferences() {
-    referenceRoot = $("#content a[href*='/stream/']").first();
+    referenceRoot = $("#content a[href*='/stream']").first();
     referenceIconParent = referenceRoot.parent().parent().parent().parent();
     referenceTitle = $("#content a[href$='/stream']").first();
     //referenceBreak = referenceTitle.prev();

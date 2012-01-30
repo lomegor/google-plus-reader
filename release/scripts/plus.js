@@ -52,7 +52,8 @@ if (window==top) {
   var CLASS_REFERENCE_ENTRY_FEED_DATE = "entryFeedDate";
   var CLASS_REFERENCE_ENTRY_FEED_META = "entryFeedMeta";
   var COLOR_REFERENCE_RED = "rgb(221, 75, 57)";
-  var ID_REFERENCE_READER_MENU_TITLE = "googleplusreadertitle";
+  var ID_REFERENCE_READER_MENU_TITLE = "googlePlusReaderTitle";
+  var ID_REFERENCE_SHOW_READ_TAGS = "readerReadTags";
   var ID_REFERENCE_ICON = "readerIcon";
   var ID_REFERENCE_BELOW_YOUTUBE = "readerMenuIcon";
   var SELECTOR_CLASS_REFERENCE_ENTRY = 'div.'+CLASS_REFERENCE_ENTRY;
@@ -61,6 +62,8 @@ if (window==top) {
   var SELECTOR_CLASS_REFERENCE_UNREAD = 'div.'+CLASS_REFERENCE_UNREAD;
   var SELECTOR_CLASS_REFERENCE_SHARE_BUTTON = 'a.'+CLASS_REFERENCE_SHARE_BUTTON;
   var SELECTOR_CLASS_REFERENCE_MARK_UNREAD_BUTTON = 'a.'+CLASS_REFERENCE_MARK_UNREAD_BUTTON;
+  var CLASS_TAGS_NO_ITEM = "emptyTag";
+  var ID_ELEMENT_LIST = "elementList";
 
   //all elements
   var all = {};
@@ -70,6 +73,8 @@ if (window==top) {
   //reference to the parent of our menu
   var googleReaderMenuParent;
   //reference to the "Show Read" button
+  var showButtonTags;
+  //reference to the "Show Read Items" button
   var showButton;
   //reference to the feeds part
   var referenceMiddle;
@@ -101,7 +106,12 @@ if (window==top) {
   var fetching=false;
   //should we show read items?
   var showRead=false;
+  var showReadTags=false;
   var belowCircles=false;
+
+  //empty tag rule
+  var ruleEmptyTag;
+
 
   var tick=0;
 
@@ -180,6 +190,7 @@ if (window==top) {
     method:"status"},
     function(data) {
       showRead=data.showRead;
+      showReadTags=data.showReadTags;
       belowCircles=data.belowCircles
       if (data.useGooglePlus) {
         addGoogleReader();
@@ -241,6 +252,11 @@ if (window==top) {
       this.setObjects = function() {
         that.DOM=$("div[title|='"+that.id+"']");
         that.DOMtagname=that.DOM.find("div."+CLASS_REFERENCE_TAGNAME);
+				if (that.unreadCount==0) {
+					that.DOM.addClass(CLASS_TAGS_NO_ITEM);
+				} else {
+					that.DOM.removeClass(CLASS_TAGS_NO_ITEM);
+				}
       }
 
       this.updateCount = function(unread) {
@@ -253,6 +269,11 @@ if (window==top) {
             that.DOMtagname.css('font-weight','bold');
           }
           that.DOMtagname.text(txt);
+          if (that.unreadCount==0) {
+						that.DOM.addClass(CLASS_TAGS_NO_ITEM);
+          } else {
+						that.DOM.removeClass(CLASS_TAGS_NO_ITEM);
+          }
         }
       }
 
@@ -275,12 +296,20 @@ if (window==top) {
         for (var i=0; i<count; i++) {
           that.tags[i].decreaseCount();
         }
+				if (that.unreadCount==0) {
+					that.DOM.addClass(CLASS_TAGS_NO_ITEM);
+				} else {
+					that.DOM.removeClass(CLASS_TAGS_NO_ITEM);
+				}
       }
       this.increaseCount = function() {
         that.updateCount(that.unreadCount+1);
         var count = that.tags.length;
         for (var i=0; i<count; i++) {
           that.tags[i].increaseCount();
+        }
+        if (that.unreadCount!=0) {
+					that.DOM.removeClass(CLASS_TAGS_NO_ITEM);
         }
       }
     }
@@ -360,6 +389,11 @@ if (window==top) {
         that.DOM=that.DOMmain.parent();
         that.DOMopen=that.DOMmain.find('span.'+CLASS_REFERENCE_OPEN_BUTTON);
         that.DOMfeeds=that.DOM.find('div.'+CLASS_REFERENCE_SUBTREE);
+				if (that.unreadCount==0) {
+					that.DOM.addClass(CLASS_TAGS_NO_ITEM);
+				} else {
+					that.DOM.removeClass(CLASS_TAGS_NO_ITEM);
+				}
       }
 
       this.updateCount = function(unread) {
@@ -372,6 +406,11 @@ if (window==top) {
             that.DOMtagname.css('font-weight','bold');
           }
           that.DOMtagname.text(txt);
+          if (that.unreadCount==0) {
+						that.DOM.addClass(CLASS_TAGS_NO_ITEM);
+          } else {
+						that.DOM.removeClass(CLASS_TAGS_NO_ITEM);
+          }
         }
       }
 
@@ -392,6 +431,29 @@ if (window==top) {
       }
     }
 
+    function findRuleForTag() {
+			var headElement = document.getElementsByTagName("head")[0],
+			styleElement = document.createElement("style");
+			styleElement.type = "text/css";
+			headElement.appendChild(styleElement);
+			styleElement.appendChild(document.createTextNode("."+CLASS_TAGS_NO_ITEM + " { display: block !important }"));
+	    var ss = document.styleSheets;
+			var found=false;
+			for (var i=0; i<ss.length && !found; i++) {
+				var rules = ss[i].cssRules || ss[i].rules;
+				for (var j=0; j<rules.length && !found; j++) {
+					console.log(rules[j].selectorText);
+					if (rules[j].selectorText === "."+CLASS_TAGS_NO_ITEM) {
+						ruleEmptyTag=rules[j];
+						found=true;
+					}
+				}
+			}
+			if (!showReadTags) {
+        ruleEmptyTag.style.display = "none !important";
+      }
+		}
+
     function start() {
       updateReferences();
       if ((belowCircles && referenceRoot.length==0) || (!belowCircles && referenceIconParent.length==0)) {
@@ -400,7 +462,7 @@ if (window==top) {
       }
       debug("Starting...");
       addLiveFunctions();
-
+			findRuleForTag();
       getAllTagsAndFeeds();
       updateToken();
       updater();
@@ -494,7 +556,7 @@ if (window==top) {
 
     function writeAll() {
       debug("Writing Menu");
-      var elementList = "<div>";
+      var elementList = '<div id="'+ID_ELEMENT_LIST+'">';
       for (var el in all) {
         if (all[el].isRoot() && all[el].hasElements()) {
           elementList+=all[el].DOMtext;
@@ -517,19 +579,28 @@ if (window==top) {
 
       //nice title, if click, update my unread
       var title = '<div id="'+ID_REFERENCE_READER_MENU_TITLE+'" class="'+classes.join(' ')+'">Reader</div>';
+      showButtonTags = $("<a>").attr('id',ID_REFERENCE_SHOW_READ_TAGS);
+      if (!showReadTags) {
+        showButtonTags.text("Show Read");
+        showButtonTags.click(function(){showAllTags()});
+      } else {
+        showButtonTags.text("Hide Read");
+        showButtonTags.click(function(){hideReadTags()});
+      }
 
       //append ALL the things!
       //googleReaderMenu.append(separator);
       googleReaderMenu.append(title);
+      googleReaderMenu.append(showButtonTags);
       googleReaderMenu.append(elementList);
 
       //little button for changin preference
       showButton = $("<a>");
       if (!showRead) {
-        showButton.text("Show Read");
+        showButton.text("Show Read Items");
         showButton.click(function(){showAll()});
       } else {
-        showButton.text("Hide Read");
+        showButton.text("Hide Read Items");
         showButton.click(function(){hideRead()});
       }
       googleReaderMenu.append(showButton);
@@ -793,7 +864,7 @@ if (window==top) {
           //change button
           showRead=true;
           showButton.unbind('click');
-          showButton.text("Hide Read");
+          showButton.text("Hide Read Items");
           showButton.click(function(){hideRead()});
           //refresh view
           if ($("#contentPane").find("*:contains('Google Reader -')").length>0) {
@@ -809,7 +880,7 @@ if (window==top) {
         function() {
           showRead=false;
           showButton.unbind('click');
-          showButton.text("Show Read");
+          showButton.text("Show Read Items");
           showButton.click(function(){showAll()});
           //refresh view
           if ($("#contentPane").find("*:contains('Google Reader -')").length>0) {
@@ -819,6 +890,32 @@ if (window==top) {
       );
     }
 
+    function showAllTags() {
+      chrome.extension.sendRequest({
+        method:"changeShowReadTags"},
+        function() {
+          //change button
+          showReadTags=true;
+          showButtonTags.unbind('click');
+          showButtonTags.text("Hide Read");
+          showButtonTags.click(function(){hideReadTags()});
+         	ruleEmptyTag.style.display = "block !important";
+        }
+      );
+    }
+
+    function hideReadTags() {
+      chrome.extension.sendRequest({
+        method:"changeShowReadTags"},
+        function() {
+          showReadTags=false;
+          showButtonTags.unbind('click');
+          showButtonTags.text("Show Read");
+          showButtonTags.click(function(){showAllTags()});
+         	ruleEmptyTag.style.display = "none !important";
+        }
+      );
+    }
     //mark entry read... blah!
     //should add a way of removing keep unread if it has it
     function markRead(id,entry,tag) {
@@ -917,6 +1014,7 @@ if (window==top) {
         data:{"s":tag.id,"t":tag.name,"T":token}},
         function () {
           updateUnreadCount();
+          currentTag.updateCount(0);
           currentTag.DOMtagname.click();
         }
       );
@@ -965,7 +1063,7 @@ if (window==top) {
 
     //sharing functions
     var firstTime=true;
-    var referenceShareBox = $("#gbi3");
+    var referenceShareBox = $("#gbg3");
     var referenceIframe = $("#gbsf");
     //same as reader mostly
     function share(evt,url) {
@@ -977,6 +1075,8 @@ if (window==top) {
         evt2.initMouseEvent("click","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
         referenceShareBox[0].dispatchEvent(evt2);
         //absoluting box so it doesnt scroll to top
+        referenceIframe.parent().css('top',referenceIframe.parent().offset().top);
+        referenceIframe.parent().css('left',referenceIframe.parent().offset().left);
         referenceIframe.parent().css('position','fixed');
         referenceIframe.parent().css('background-color','white');
         referenceIframe.parent().css('border','1px solid #BEBEBE');
@@ -992,9 +1092,9 @@ if (window==top) {
 } else if (location.href.indexOf("apps-static")==-1) {
 
   //reference Selectors... may change when google+ changes
-  var referenceAddLinkSelector ="#nw-content span:nth-child(3)";
+  var referenceAddLinkSelector ='#summary-view span[id$=".l"]';
   var referenceLinkSelector = "#summary-view input:eq(0)";
-  var referenceAddSelector = "div[role|='button']:eq(0)";
+  var referenceAddSelector = "#summary-view table div[role|='button']:eq(0)";
   var referenceCloseLink = "#summary-view div[tabindex|='0']";
 
   //listen on request to use share box
@@ -1008,7 +1108,6 @@ if (window==top) {
   //loop that checks continously checks if the page is loaded
   //and add the link if it is
   function loopAddLink(url,count) {
-    console.log(location.href);
     if (count>10)
       return;
     try {
@@ -1028,8 +1127,8 @@ if (window==top) {
       //if add link exist, click it to add the new link
       //if it doesnt, throw exception to keep it in loop
       //until loaded
-      evt = document.createEvent("HTMLEvents");
-      evt.initEvent("click","true","true");
+			evt = document.createEvent("MouseEvents");
+			evt.initMouseEvent("click","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
       var addlink = $(referenceAddLinkSelector)[0];
       addlink.dispatchEvent(evt);
       var link = $(referenceLinkSelector);
@@ -1046,7 +1145,8 @@ if (window==top) {
       //find add button and create a mousedown, mouseup and click event
       //only a click event wont work...
       var add = $(referenceAddSelector);
-      var evt = document.createEvent("MouseEvents");
+      console.log(add);
+      evt = document.createEvent("MouseEvents");
       evt.initMouseEvent("mousedown","true","true",window,0,0,0,0,0,false,false,false,false,0,document.body.parentNode);
       add[0].dispatchEvent(evt);
       evt = document.createEvent("MouseEvents");

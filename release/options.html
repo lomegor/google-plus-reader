@@ -44,6 +44,14 @@
       if (showRead=="true") {
         document.getElementById("read").checked=true;
       }
+      var showReadTags = localStorage["showReadTags"];
+      if (showReadTags==undefined) {
+        showReadTags = "true";
+        localStorage["showReadTags"] = "true";
+      }
+      if (showReadTags=="true") {
+        document.getElementById("tagsread").checked=true;
+      }
     }
     function saveOptionsPlus() {
       if (document.getElementById("plus").checked) 
@@ -62,6 +70,12 @@
         localStorage["showRead"]=true;
       else 
         localStorage["showRead"]=false;
+    }
+    function saveOptionsReadTags() {
+      if (document.getElementById("tagsread").checked)
+        localStorage["showReadTags"]=true;
+      else 
+        localStorage["showReadTags"]=false;
     }
   </script>
   <style type="text/css">
@@ -100,6 +114,10 @@
     <div>
       <input id="read" onclick="saveOptionsRead()" type="checkbox" name="showRead" value="Show Read Items?">
       Show Read Items on Google+
+    </div>
+    <div>
+      <input id="tagsread" onclick="saveOptionsReadTags()" type="checkbox" name="showReadTags" value="Show Read Tags?">
+      Show Read Tags on list
     </div>
     <img src="icon.png">
   </div>

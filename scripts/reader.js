@@ -18,7 +18,7 @@
 
 //reference Selectors... may change when google+ changes
 var referenceWindowSelector = "#chrome";
-var referenceShareSelector = "#gbi3";
+var referenceShareSelector = "#gbg3";
 var referenceIframeSelector = "#gbsf";
 var referenceEntryActionsSelector ="div.entry-actions";
 

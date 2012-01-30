@@ -146,6 +146,17 @@
   width:168px;
   float:left;
 }
+#googlePlusReaderTitle {
+	float:left;
+	font-weight:bold;
+	width:40%;
+}
 #elementList {
 	margin-top:17%;
+}
+#readerReadTags {
+	display:block;
+	margin-top:2%;
+	float:right;
+	width:40%;
 }

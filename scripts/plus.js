@@ -746,7 +746,7 @@ if (window==top) {
       }
       //scroll to the top <==> we are not at the top already!
       if (titleTop<$("body").scrollTop())
-        $("body").scrollTop(titleTop-70);
+        $("body").scrollTop(titleTop-110);
     }
 
     function show(data) {
@@ -1026,7 +1026,7 @@ if (window==top) {
           && evt.target==$("body")[0]
           && (evt.which==74 || evt.which==75 || evt.which==83)) {
         if (evt.type=="keyup") {
-          var toppix = 70;
+          var toppix = 90;
           if (evt.which==74) {
             var lastEntry = $(SELECTOR_CLASS_REFERENCE_ENTRY).eq(currentEntry+1);
             $("body").scrollTop(lastEntry.offset().top-toppix);

@@ -16,7 +16,6 @@
  along with Google+Reader.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script src="scripts/jquery.js"></script>
-<script src="scripts/jquery.hotkeys.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">
 var ok=false;
 function checkOk() {
@@ -40,10 +39,9 @@ chrome.extension.onRequest.addListener(
   function (request,sender,sendResponse) {
     if (request.method=="status") {
       data = {};
-      data.useGooglePlus=localStorage["useGooglePlus"]=="true"?true:false;
       data.showRead=localStorage["showRead"]=="true"?true:false;
       data.showReadTags=localStorage["showReadTags"]=="true"?true:false;
-      data.belowCircles=localStorage["readerBelowCircles"]=="true"?true:false;
+      data.listView=localStorage["listView"]=="true"?true:false;
       sendResponse(data);
     } else if (request.method=="changeShowRead"){
       if (localStorage["showRead"]=="true")
@@ -56,6 +54,12 @@ chrome.extension.onRequest.addListener(
         localStorage["showReadTags"]="false"
       else
         localStorage["showReadTags"]="true"
+      sendResponse("ok");
+    } else if (request.method=="changeListView"){
+      if (localStorage["listView"]=="true")
+        localStorage["listView"]="false"
+      else
+        localStorage["listView"]="true"
       sendResponse("ok");
     } else if (request.reader) {
       chrome.tabs.getSelected(null, function(tab) {
@@ -129,14 +133,12 @@ function xml2json(xml) {
  return obj;
 };
 function firstTime() {
-      if (localStorage["useGooglePlus"]==undefined)
-        localStorage["useGooglePlus"] = "true";
       if (localStorage["showRead"]==undefined)
         localStorage["showRead"] = "true";
       if (localStorage["showReadTags"]==undefined)
         localStorage["showReadTags"] = "true";
-			if (localStorage["readerBelowCircles"]==undefined)
-				localStorage["readerBelowCircles"];
+      if (localStorage["listView"]==undefined)
+        localStorage["listView"] = "true";
 };
 firstTime();
 </script>

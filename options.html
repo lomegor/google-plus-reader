@@ -20,22 +20,6 @@
   <title>Options for Goole+Reader</title>
   <script type="text/javascript">
     function loadOptions() {
-      var useGooglePlus = localStorage["useGooglePlus"];
-      if (useGooglePlus==undefined) {
-        useGooglePlus = "true";
-        localStorage["useGooglePlus"] = "true";
-      }
-      if (useGooglePlus=="true") {
-        document.getElementById("plus").checked=true;
-      }
-      var readerBelowCircles = localStorage["readerBelowCircles"];
-      if (readerBelowCircles==undefined) {
-        readerBelowCircles = "false";
-        localStorage["readerBelowCircles"] = "false";
-      }
-      if (readerBelowCircles=="true") {
-        document.getElementById("circles").checked=true;
-      }
       var showRead = localStorage["showRead"];
       if (showRead==undefined) {
         showRead = "true";
@@ -49,21 +33,17 @@
         showReadTags = "true";
         localStorage["showReadTags"] = "true";
       }
+      var listView = localStorage["listView"];
+      if (listView==undefined) {
+        listView = "true";
+        localStorage["listView"] = "true";
+      }
+      if (listView=="true") {
+        document.getElementById("view").checked=true;
+      }
       if (showReadTags=="true") {
         document.getElementById("tagsread").checked=true;
       }
-    }
-    function saveOptionsPlus() {
-      if (document.getElementById("plus").checked) 
-        localStorage["useGooglePlus"]=true;
-      else 
-        localStorage["useGooglePlus"]=false;
-    }
-    function saveOptionsReader() {
-      if (document.getElementById("circles").checked) 
-        localStorage["readerBelowCircles"]=true;
-      else 
-        localStorage["readerBelowCircles"]=false;
     }
     function saveOptionsRead() {
       if (document.getElementById("read").checked)
@@ -76,6 +56,12 @@
         localStorage["showReadTags"]=true;
       else 
         localStorage["showReadTags"]=false;
+    }
+    function saveOptionsView() {
+      if (document.getElementById("view").checked)
+        localStorage["listView"]=true;
+      else 
+        localStorage["listView"]=false;
     }
   </script>
   <style type="text/css">
@@ -104,20 +90,16 @@
 <body onload="loadOptions()">
   <div id="wrapper">
     <div>
-      <input id="plus" onclick="saveOptionsPlus()" type="checkbox" name="useGooglePlus" value="Should Google Reader be added to Google+" />
-      Add Google Reader to Google+
-    </div>
-    <div>
-      <input id="circles" onclick="saveOptionsReader()" type="checkbox" name="readerBelowCircles" value="Google Reader below circles instead of YouTube" />
-      Show Google Reader below Circles
-    </div>
-    <div>
       <input id="read" onclick="saveOptionsRead()" type="checkbox" name="showRead" value="Show Read Items?">
       Show Read Items on Google+
     </div>
     <div>
       <input id="tagsread" onclick="saveOptionsReadTags()" type="checkbox" name="showReadTags" value="Show Read Tags?">
       Show Read Tags on list
+    </div>
+    <div>
+      <input id="view" onclick="saveOptionsView()" type="checkbox" name="listView" value="List View?">
+			Show items as a list instead of expanded
     </div>
     <img src="icon.png">
   </div>

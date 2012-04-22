@@ -15,13 +15,6 @@
  You should have received a copy of the GNU General Public License
  along with Google+Reader.  If not, see <http://www.gnu.org/licenses/>.
 **/
-.markallread {
-  font-size: 13px;
-  cursor: pointer;
-  outline: none;
-  text-decoration: none;
-  float:right;
-}
 .feedtitle {
 	font: 18px arial,sans-serif;
 	color: #333;
@@ -40,6 +33,8 @@
 	z-index:200;
 }
 .entry {
+	width:100%;
+  white-space:wrap;
   background-color: white;
   border-bottom: 1px solid transparent;
   border-left: 1px solid transparent;
@@ -83,10 +78,13 @@
   text-decoration: none;
   float:right;
 }
+.entry .summary {
+  white-space:wrap;
+}
 .entry .summary img {
   max-width:100%;
 }
-.entry.entryselected {
+.entry.selected {
   border:1px solid #D2D2D2;
 }
 .noitems {
@@ -107,52 +105,151 @@
   color:black;
   font-size:20px;
 }
-.open {
-  font-weight:bold;
-  color:#CCC;
-  float:left;
-  height:100%;
-  font-size:15px;
-  margin-left:10px;
-  margin-right:10px;
-}
-.subtag {
-  margin-left:10px;
-}
-.selectedTag {
+.menuButtonTag.selected {
 	color: rgb(221,75,57);
 }
 #readerIcon {
-	background: whiteSmoke;
-	border: 1px solid #D2D2D2;
-	border-right-width: 0;
-	border-top-left-radius: 2px;
-	border-bottom-left-radius: 2px;
-	box-shadow: 0 0 5px rgba(0,0,0,0.1);
-	height: 29px;
-	width: 25px;
-	padding: 6px;
-	float:left;
+	position:relative;
+	margin: 0 14px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	padding: 15px 0 16px 0;
+	position: relative;
+	z-index: 23;
 }
-#readerMenuIcon {
-	position: fixed;
-	top: 150px;
-	right: -168px;
-	width: 207px;
-	z-index: 900;
+.listIcon {
+	height: 32px;
+	width: 32px;
+	margin:0 auto;
+	display:block;
 }
-.googleplusreader {
-	margin-top:10px;
-  width:168px;
-  float:left;
+.googleReaderMenu {
+  width:100%;
+  height:55px;
+  position:relative;
+  display:inline-block;
+  border-bottom-color: #D7D7D7;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
 }
+	.googleReaderMenu .menuButton {
+		-webkit-user-select: none;
+		-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.1);
+		background-attachment: scroll;
+		background-clip: border-box;
+		background-color: whiteSmoke;
+		background-image: -webkit-linear-gradient(top, whiteSmoke, #F1F1F1);
+		background-origin: padding-box;
+		border: 1px solid rgba(0,0,0,0.0976563);
+		color: #333;
+		z-index:3;
+		max-width: 120px;
+		min-width: 34px;
+		overflow:visible;
+		padding-left: 12px;
+		padding-right: 12px;
+		text-overflow: ellipsis;
+		vertical-align: middle;
+		white-space: nowrap;
+		border-radius: 2px;
+		cursor: default;
+		font-size: 11px;
+		font-weight: bold;
+		text-align: center;
+		height: 27px;
+		line-height: 27px;
+		outline: 0;
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
+		position:relative;
+		display:inline-block;
+		vertical-align:middle;
+		margin-left:-1px;
+	}
+	.googleReaderMenu .menuButton:hover {
+		background-color: #F8F8F8;
+		background-image: -webkit-linear-gradient(top,#F8F8F8,#F1F1F1);
+		border: 1px solid #C6C6C6;
+		color: #333;
+	}
+	.googleReaderMenu .menuButton .tagname {
+		display:inline-block;
+	}
+	.googleReaderMenu .menuButton.selected {
+		-webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+		background-color: #EEE;
+		background-image: -webkit-linear-gradient(top,#EEE,#E0E0E0);
+		border: 1px solid #CCC;
+		color: #333;
+	}
+	.googleReaderMenu .menuButton .subtag {
+		-webkit-box-shadow: rgba(0, 0, 0, 0.199219) 0px 2px 4px 0px;
+		background:white;
+		box-sizing: border-box;
+		position:absolute;
+		top:0;
+		left:0;
+		background-color:white;
+		overflow:visible;
+		margin-top:27px;
+		max-width:none;
+		border: 1px solid rgba(0, 0, 0, .2);
+		padding:6px 0;
+	}
+		.googleReaderMenu .menuButton .subtag .menuButton {
+			-webkit-box-shadow:none;
+			background:white;
+			border:0px none white;
+			display:block;
+			text-align:left;
+			overflow:visible;
+			max-width:none;
+			padding-top: 5px;
+			padding-bottom: 5px;
+			font-weight:normal;
+			border: solid 1px white;
+			height:16px;
+			line-height:16px;
+		}
+		.googleReaderMenu .menuButton .subtag .menuButton:hover {
+			cursor:pointer;
+			background-color: #EEE;
+			border-color: #EEE;
+			border-style: dotted;
+		}
+	.googleReaderMenu .menuButton .open {
+		margin-left:5px;
+		width: 9px;
+		height: 6px;
+		display:inline-block;
+	}
+	.googleReaderMenu .menuButton .setIcon {
+		margin-top:3px;
+		width:20px;
+		height:20px;
+		display:inline-block;
+		vertical-align:top;
+	}
 #googlePlusReaderTitle {
 	float:left;
 	font-weight:bold;
 	width:40%;
 }
 #elementList {
-	margin-top:17%;
+	display:inline-block;
+	max-width:70%;
+	overflow:visible;
+	height:55px;
+	line-height:55px;
+	margin-left:19px;
+}
+#rightElementList {
+	display:inline-block;
+	overflow:visible;
+	height:55px;
+	line-height:55px;
+	margin-right:19px;
+	float:right;
 }
 #readerReadTags {
 	display:block;

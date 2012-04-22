@@ -970,6 +970,8 @@ if (window==top) {
 						entry.addClass(CLASS_REFERENCE_UNREAD);
 					} else {
 						tag.decreaseCount();
+						if (tag!=all[ITEM_REFERENCE_ALL])
+							all[ITEM_REFERENCE_ALL].decreaseCount();
 						update();
 					}
 				}
@@ -989,6 +991,8 @@ if (window==top) {
 						} else {
 							entry.addClass(CLASS_REFERENCE_MARKED_UNREAD);
 							tag.increaseCount();
+							if (tag!=all[ITEM_REFERENCE_ALL])
+								all[ITEM_REFERENCE_ALL].increaseCount();
 							update();
 						}
 					}

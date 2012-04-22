@@ -79,7 +79,7 @@
   float:right;
 }
 .entry .summary {
-  white-space:wrap;
+  white-space:normal;
 }
 .entry .summary img {
   max-width:100%;

@@ -227,7 +227,7 @@ if (window==top) {
 			this.init = function() {
 				var DOM = '<div title="'+that.id+'" class="'+CLASS_REFERENCE_BUTTON+" "+CLASS_REFERENCE_BUTTON_TAG+'">';
 				var txt;
-				txt = that.name;
+				txt = that.name.length<15?that.name:that.name.substring(0,15)+'…';
 				var DOMtagname = '<div class="'+CLASS_REFERENCE_TAGNAME+'"';
 				if (that.unreadCount>0) {
 					if (that.unreadCount>=1000) {
@@ -262,7 +262,8 @@ if (window==top) {
 			this.updateCount = function(unread) {
 				if (unread!=that.unreadCount) {
 					that.unreadCount=unread;
-					var txt = that.name;
+					var txt;
+					txt = that.name.length<15?that.name:that.name.substring(0,15)+'…';
 					that.DOMtagname.css('font-weight','');
 					if (that.unreadCount>0) {
 						if (that.unreadCount>=1000) {
@@ -345,7 +346,7 @@ if (window==top) {
 				var DOMmain = '<div>';
 				var DOMtagname = '<div class="'+CLASS_REFERENCE_TAGNAME+'"';
 				var txt;
-				txt = that.name;
+				txt = that.name.length<15?that.name:that.name.substring(0,15)+'…';
 				if (that.unreadCount>0) {
 					if (that.unreadCount>=1000) {
 						txt += " (1000+)";
@@ -402,7 +403,8 @@ if (window==top) {
 			this.updateCount = function(unread) {
 				if (unread!=that.unreadCount) {
 					that.unreadCount=unread;
-					var txt = that.name;
+					var txt;
+					txt = that.name.length<15?that.name:that.name.substring(0,15)+'…';
 					that.DOMtagname.css('font-weight','');
 					if (that.unreadCount>0) {
 						if (that.unreadCount>=1000) {

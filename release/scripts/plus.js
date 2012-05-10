@@ -51,7 +51,6 @@ if (window==top) {
 	var CLASS_REFERENCE_TAGNAME = "tagname";
 	var CLASS_REFERENCE_TITLE = "feedtitle";
 	var CLASS_REFERENCE_FEEDS = "feedsContent";
-	var CLASS_REFERENCE_RED_CLASS = "selected";
 	var CLASS_REFERENCE_ENTRY_FEED_TITLE = "entryFeedTitle";
 	var CLASS_REFERENCE_ENTRY_FEED_DATE = "entryFeedDate";
 	var CLASS_REFERENCE_ENTRY_FEED_META = "entryFeedMeta";
@@ -59,13 +58,9 @@ if (window==top) {
 	var CLASS_REFERENCE_BUTTON_SELECTED = "selected";
 	var CLASS_REFERENCE_TAGS_NO_ITEM = "emptyTag";
 	var ID_REFERENCE_RIGHT_ELEMENT_LIST = "rightElementList";
-	var ID_REFERENCE_READER_MENU_TITLE = "googlePlusReaderTitle";
-	var ID_REFERENCE_SHOW_READ_TAGS = "readerReadTags";
 	var ID_REFERENCE_READER_ICON = "readerIcon";
 	var SELECTOR_CLASS_REFERENCE_PARENT = "div#content div[role|='listbox'] > div:eq(3)";
 	var SELECTOR_CLASS_REFERENCE_ENTRY = 'div.'+CLASS_REFERENCE_ENTRY;
-	var SELECTOR_CLASS_REFERENCE_TAGNAME = 'div.'+CLASS_REFERENCE_TAGNAME;
-	var SELECTOR_CLASS_REFERENCE_OPEN_BUTTON = 'div.'+CLASS_REFERENCE_OPEN_BUTTON;
 	var SELECTOR_CLASS_REFERENCE_UNREAD = 'div.'+CLASS_REFERENCE_UNREAD;
 	var SELECTOR_CLASS_REFERENCE_SHARE_BUTTON = 'a.'+CLASS_REFERENCE_SHARE_BUTTON;
 	var SELECTOR_CLASS_REFERENCE_MARK_UNREAD_BUTTON = 'a.'+CLASS_REFERENCE_MARK_UNREAD_BUTTON;
@@ -108,6 +103,7 @@ if (window==top) {
 	var referenceBreak;
 	var referenceMenu;
 	var referenceContent;
+	var referenceContentParent;
 
 	//save unread count before modifying it
 	var currentUnreadCount;
@@ -129,6 +125,7 @@ if (window==top) {
 		googleReaderIconParent = $(SELECTOR_CLASS_REFERENCE_PARENT);
 		referenceMenu = $('#content a[href$="/notifications/all"]');
 		referenceContent = $("#contentPane");
+		referenceContentParent = $("#content");
 	}
 
 	function update() {
@@ -743,6 +740,7 @@ if (window==top) {
 					debug("Data received");
 					//remove loading
 					referenceMiddle.find(".noitems").remove();
+					referenceContentParent.css('overflow','visible');
 					//lets add our new found data!
 					var list = show(data);
 					if (list=="") {

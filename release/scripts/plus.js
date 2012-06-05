@@ -670,6 +670,7 @@ if (window==top) {
 			referenceMiddle.css('width',referenceContent.css('width'));
 			referenceMiddle.css('height',referenceContent.css('height'));
 			referenceContent.append(referenceMiddle);
+			referenceContent.parent().parent().css('overflow','visible');
 
 			//set objects for feeds and tags
 			//after setting the menu
@@ -1076,7 +1077,7 @@ if (window==top) {
 			if ($(SELECTOR_CLASS_REFERENCE_ENTRY).length>0
 					&& evt.target==$("body")[0]
 					&& (evt.which==74 || evt.which==75 || evt.which==83)) {
-				if (evt.type=="keyup") {
+				if (evt.type=="keydown") {
 					var toppix = 90;
 					if (evt.which==74) {
 						var lastEntry = $(SELECTOR_CLASS_REFERENCE_ENTRY).eq(currentEntry+1);

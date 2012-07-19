@@ -18,52 +18,8 @@
 <html>
 <head>
   <title>Options for Goole+Reader</title>
-  <script type="text/javascript">
-    function loadOptions() {
-      var showRead = localStorage["showRead"];
-      if (showRead==undefined) {
-        showRead = "true";
-        localStorage["showRead"] = "true";
-      }
-      if (showRead=="true") {
-        document.getElementById("read").checked=true;
-      }
-      var showReadTags = localStorage["showReadTags"];
-      if (showReadTags==undefined) {
-        showReadTags = "true";
-        localStorage["showReadTags"] = "true";
-      }
-      var listView = localStorage["listView"];
-      if (listView==undefined) {
-        listView = "true";
-        localStorage["listView"] = "true";
-      }
-      if (listView=="true") {
-        document.getElementById("view").checked=true;
-      }
-      if (showReadTags=="true") {
-        document.getElementById("tagsread").checked=true;
-      }
-    }
-    function saveOptionsRead() {
-      if (document.getElementById("read").checked)
-        localStorage["showRead"]=true;
-      else 
-        localStorage["showRead"]=false;
-    }
-    function saveOptionsReadTags() {
-      if (document.getElementById("tagsread").checked)
-        localStorage["showReadTags"]=true;
-      else 
-        localStorage["showReadTags"]=false;
-    }
-    function saveOptionsView() {
-      if (document.getElementById("view").checked)
-        localStorage["listView"]=true;
-      else 
-        localStorage["listView"]=false;
-    }
-  </script>
+	<script src="scripts/jquery.js"></script>
+  <script type="text/javascript" src="scripts/options.js"></script>
   <style type="text/css">
     body {
       background-color:#333;
@@ -87,18 +43,18 @@
     }
   </style>
 </head>
-<body onload="loadOptions()">
+<body>
   <div id="wrapper">
     <div>
-      <input id="read" onclick="saveOptionsRead()" type="checkbox" name="showRead" value="Show Read Items?">
+      <input id="read" type="checkbox" name="showRead" value="Show Read Items?">
       Show Read Items on Google+
     </div>
     <div>
-      <input id="tagsread" onclick="saveOptionsReadTags()" type="checkbox" name="showReadTags" value="Show Read Tags?">
+      <input id="tagsread" type="checkbox" name="showReadTags" value="Show Read Tags?">
       Show Read Tags on list
     </div>
     <div>
-      <input id="view" onclick="saveOptionsView()" type="checkbox" name="listView" value="List View?">
+      <input id="view" type="checkbox" name="listView" value="List View?">
 			Show items as a list instead of expanded
     </div>
     <img src="icon.png">

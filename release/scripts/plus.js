@@ -59,7 +59,7 @@ if (window==top) {
 	var CLASS_REFERENCE_TAGS_NO_ITEM = "emptyTag";
 	var ID_REFERENCE_RIGHT_ELEMENT_LIST = "rightElementList";
 	var ID_REFERENCE_READER_ICON = "readerIcon";
-	var SELECTOR_CLASS_REFERENCE_PARENT = "div#content div[role|='listbox'] > div:eq(3)";
+	var SELECTOR_CLASS_REFERENCE_PARENT = "div#content div[role|='listbox'] > div:eq(2)";
 	var SELECTOR_CLASS_REFERENCE_ENTRY = 'div.'+CLASS_REFERENCE_ENTRY;
 	var SELECTOR_CLASS_REFERENCE_UNREAD = 'div.'+CLASS_REFERENCE_UNREAD;
 	var SELECTOR_CLASS_REFERENCE_SHARE_BUTTON = 'a.'+CLASS_REFERENCE_SHARE_BUTTON;

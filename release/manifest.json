@@ -1,13 +1,13 @@
 {
   "name": "RSS Share for Google+™ and Google Reader™",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Google+™ and Google Reader™ Integration.  Google Reader in Google Plus.",
   "icons": {
       "128":"icon.png",
       "48":"icon48.png",
       "16":"icon16.png"},
-  "permissions": ["tabs","http://www.google.com/reader/*","https://plus.google.com","http://plus.google.com"],
-  "background_page" : "background.html",
+  "permissions": ["tabs","http://www.google.com/reader/*","https://plus.google.com/","http://plus.google.com/"],
+  "background" : {"page" : "background.html"},
   "options_page" : "options.html",
   "content_scripts": [{
       "matches": ["*://plus.google.com/*"],
@@ -16,5 +16,7 @@
       "run_at": "document_end",
       "all_frames":true
     }
-  ]
+  ],
+  "manifest_version" : 2,
+  "web_accessible_resources" : ["images/downArrow.png", "images/icon32.png", "images/icon32transp.png", "images/settings.png"]
 }
